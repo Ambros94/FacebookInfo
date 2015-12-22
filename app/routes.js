@@ -12,6 +12,14 @@ module.exports = function (app, passport) {
         res.render('index.ejs');
     });
 
+    // ADMIN PAGE =========================
+    app.get('/admin', function (req, res) {
+
+        res.render('admin.ejs', {
+        });
+
+    });
+
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function (req, res) {
 

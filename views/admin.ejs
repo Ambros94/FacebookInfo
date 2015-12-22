@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified JavaScript -->
+    <title>FacebookInfo</title>
+
+
+</head>
+<body>
+<!--
+<div id="blackBackground" onclick="closePic()">
+    <img id="profilePic" class="showPic" src="" alt="">
+    <img id="bestPic" class="showPic" src="" alt="profile picture">
+</div>
+-->
+<nav class="headerSettings">
+    <img class="profilePic"
+         src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+    <div class="nav-wrapper">
+        <img class="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="logo">
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a> <i class="material-icons">settings</i></a></li>
+            <li><a> <i class="material-icons">replay</i></a></li>
+            <li><a href="login"><i class="material-icons inline rotate">open_in_browser</i><span
+                            class="inline">Logout</span></a></li>
+        </ul>
+    </div>
+</nav>
+<div class="containerMain">
+    <div class="leftMain"></div>
+    <div class="centerMain">
+        <div class="frame">
+            <div class="statsContainer">
+                <img class="bestPicture materialboxed" data-caption="Best Picture"
+                     src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                <div class="personalStats">
+                    <div class="section">
+                        <h5>Name</h5>
+                        <p>Marzio Stampanoni</p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section">
+                        <h5>Total posts number</h5>
+                        <p>120 posts</p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section">
+                        <h5>Total likes number</h5>
+                        <p>340 Likes</p>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="section">
+                        <h5>Best friend</h5>
+                        <p>Tua madre</p>
+                    </div>
+                    <div class="divider"></div>
+
+                </div>
+            </div>
+            <div class="wordCloudContainer"></div>
+            <div class="graphContainer">
+                <div class="column">
+                    <div class="portlet">
+                        <div class="portlet-header">Feeds</div>
+                        <div class="portlet-content">
+                            <div class="placeholder" id="graph1"></div>
+                        </div>
+                    </div>
+                    <div class="portlet">
+                        <div class="portlet-header">News</div>
+                        <div class="portlet-content">
+                            <div class="placeholder" id="graph2"></div>
+                        </div>
+                    </div>
+                    <div class="portlet">
+                        <div class="portlet-header">News</div>
+                        <div class="portlet-content">
+                            <div class="placeholder" id="graph3"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="rightMain"></div>
+</div>
+<footer class="footer">
+    &copyitr0
+</footer>
+<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
+<script src="lib/flot/jquery.flot.js"></script>
+<script src="lib/flot/jquery.flot.resize.js"></script>
+<script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="lib/d3/d3.layout.cloud.js"></script>
+<script src="javascript/main.js"></script>
+</body>
+</html>
+<body>
