@@ -5,14 +5,14 @@
  * */
 "use strict";
 
-var dbPromise = require('../app/MongoManager');
-var userPostCollection = 'userFeed';
+var dbPromise = require('../app/MongoManager').dbPromise;
+var collections = require('../app/MongoManager').collections;
 
 var storeUserFeed = function (email, feed) {
     return new Promise(function (resolve,reject){
         dbPromise.then(function (db) {
-            var collection = db.collection(userPostCollection);
-            collection.update({email: email}, {email: email, feed: feed}, {upsert: true}).then(function () {
+            var collection = db.collection(collections.userPost);
+            collection.update({email: email}, {email: email, data: feed}, {upsert: true}).then(function () {
                 resolve("User feed correctly stored");
             }).catch(function (err) {
                 reject(err);
@@ -21,12 +21,12 @@ var storeUserFeed = function (email, feed) {
             reject(err);
         });
     });
-
 };
+
 var storeUserUploadedPhotos = function (email, photos) {
     dbPromise.then(function (db) {// Here i have the database
-        var collection = db.collection(userPostCollection);
-        collection.update({email: email}, {email: email, uploaded_photos: photos}, {upsert: true}).then(function () {
+        var collection = db.collection(collections.userUploaded);
+        collection.update({email: email}, {email: email, data: photos}, {upsert: true}).then(function () {
             return "UploadedPhotosCorrectly updated";
         }).catch(function (err) {
             console.error(err);
@@ -35,16 +35,17 @@ var storeUserUploadedPhotos = function (email, photos) {
         console.log("QueryManager :" + err);
     });
 };
+
 var storeUserTaggedPhotos = function (email, photos) {
     dbPromise.then(function (db) {// Here i have the database
-        var collection = db.collection(userPostCollection);
-        collection.update({email: email}, {email: email, tagged_photos: photos}, {upsert: true}).then(function () {
+        var collection = db.collection(collections.userTagged);
+        collection.update({email: email}, {email: email, data: photos}, {upsert: true}).then(function () {
             console.log("Tagged photos stored correctly stored");
         }).catch(function (err) {
             console.error(err);
         })
     }).catch(function (err) {
-        console.log("QueryManager :" + err);
+        console.error("QueryManager :" + err);
     });
 };
 

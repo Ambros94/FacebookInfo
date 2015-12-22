@@ -18,8 +18,8 @@ module.exports = function (app, passport) {
             /*
              On login it stores user info
              */
-            var token=req.user.facebook.token;
-            var email=req.user.facebook.email;
+            var token = req.user.facebook.token;
+            var email = req.user.facebook.email;
             if (token) {
                 fb.init(token);
                 var state = "";//TODO SALVARE NELLA SESSIONE
@@ -30,6 +30,7 @@ module.exports = function (app, passport) {
                      */
                     return db.storeUserFeed(email, result);
                 }).then(function () {
+
                     state = "Uploaded photos downloading";
                     /*
                      Get uploaded photos
