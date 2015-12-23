@@ -2,6 +2,7 @@
 var fb = require('../facebook/crawler');
 var db = require('./QueryManager');
 var analyzer = require('../facebook/analyzer');
+var Session = require('./session');
 
 module.exports = function (app, passport) {
 
@@ -18,16 +19,18 @@ module.exports = function (app, passport) {
         res.render('admin.ejs', {});
 
     });
-    app.get('/testGet', isLoggedIn, function (req, res) {
-        res.send(req.user.info.state);
+    /*
+     Interations with state //TODO Citro guarda queste
+     */
+    app.get('/getState', isLoggedIn, function (req, res) {
+        var email = req.user.facebook.email;
+        var state = Session.getState(email);
+        res.send({state});
     });
-    app.get('/testSetFirst', isLoggedIn, function (req, res) {
-        req.user.info.state="cose";
-        res.send("Ok");
-    });
-    app.get('/testSetSecond', isLoggedIn, function (req, res) {
-        req.user.info.state="altre cose";
-        res.send("Ok Second");
+    app.get('/getState/:email', isLoggedIn, function (req, res) {
+        var email = req.params.email;
+        var state = Session.getState(email);
+        res.send({state});
     });
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function (req, res) {
@@ -39,16 +42,14 @@ module.exports = function (app, passport) {
             var email = req.user.facebook.email;
             if (token) {
                 fb.init(token);
-                var state = "";//TODO SALVARE NELLA SESSIONE
-                state = "Post downloading";
+                Session.updateState(email,"Post downloading");
                 fb.getPosts().then(function (result) {
                     /*
                      Store the feed
                      */
                     return db.storeUserFeed(email, result);
                 }).then(function () {
-
-                    state = "Uploaded photos downloading";
+                    Session.updateState(email,"Uploaded photos downloading");
                     /*
                      Get uploaded photos
                      */
@@ -59,7 +60,7 @@ module.exports = function (app, passport) {
                      */
                     return db.storeUserUploadedPhotos(email, result);
                 }).then(function () {
-                    state = "Tagged photos downloading";
+                    Session.updateState(email,"Tagged photos downloading");
                     /*
                      Get tagged photos
                      */
@@ -70,25 +71,25 @@ module.exports = function (app, passport) {
                      */
                     return db.storeUserTaggedPhotos(email, result)
                 }).then(function () {
-                    state = "Looking at your posts!";
+                    Session.updateState(email,"Looking at your posts!");
                     /*
                      Feed analysis
                      */
                     return analyzer.analyzePosts(email);
                 }).then(function () {
-                    state = "Looking at photos where u are tagged!";
+                    Session.updateState(email,"Looking at photos where u are tagged!");
                     /*
                      Tagged photos analysis
                      */
                     return analyzer.analyzeTaggedPhotos(email);
                 }).then(function () {
-                    state = "Looking at your photos!";
+                    Session.updateState(email,"Looking at your photos!");
                     /*
                      Uploaded photo analysis
                      */
                     return analyzer.analyzeUploadedPhotos(email);
                 }).then(function () {
-                    state = "Analysis completed!";
+                    Session.updateState(email,"Analysis completed!");
                 }).catch(function (err) {
                     console.log("Error during downloading or analiyis", err);
                 });
