@@ -15,11 +15,20 @@ module.exports = function (app, passport) {
     // ADMIN PAGE =========================
     app.get('/admin', function (req, res) {
 
-        res.render('admin.ejs', {
-        });
+        res.render('admin.ejs', {});
 
     });
-
+    app.get('/testGet', isLoggedIn, function (req, res) {
+        res.send(req.user.info.state);
+    });
+    app.get('/testSetFirst', isLoggedIn, function (req, res) {
+        req.user.info.state="cose";
+        res.send("Ok");
+    });
+    app.get('/testSetSecond', isLoggedIn, function (req, res) {
+        req.user.info.state="altre cose";
+        res.send("Ok Second");
+    });
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function (req, res) {
 

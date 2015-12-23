@@ -12,6 +12,36 @@ var fb = require('./crawler');
 var groupByMonthYear = function (item) {
     return item.created_time.substring(0, 7);
 };
+var groupByHour = function (item) {
+    return item.created_time.substring(11, 13);
+};
+var stringFilter = function (string) {
+    let array = string.split(' ');
+    for (var i = array.length - 1; i >= 0; i--) {
+        array[i] = array[i].replace(/(\r\n|\n|\r|\\)/gm, "").replace(/[.,-\/!$%\^&\*;:{}=\-_`~()]/g, "");
+        if (array[i].length <= 3) {
+            array.splice(i, 1);
+        }
+    }
+    return array;
+};
+var importantWords = function (words, limit) {
+    limit = typeof limit !== 'undefined' ? limit : 10;
+    words = _.groupBy(words, function (item) {
+        return item;
+    });
+    let keys = Object.keys(words),
+        wordsArray = [];
+
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        wordsArray.push({word: key, count: words[key].length});
+    }
+    wordsArray = wordsArray.sort(function (a, b) {
+        return b.count - a.count;
+    });
+    return wordsArray.slice(0, limit);
+};
 
 class AnalysisReport {
     constructor() {
@@ -20,8 +50,10 @@ class AnalysisReport {
         var periodGroupedLikes;
         var likesByPerson;
         var usedWords;
+        var hourGroupedLikes;
     }
 }
+
 
 var analyzeDatas = function (args) {
     if (!(args && args.email && args.sourceCollection && args.destinationCollection)) {
@@ -36,7 +68,7 @@ var analyzeDatas = function (args) {
         /*
          Analyze the feed from user, by email identified
          */
-        let sourceCollection=db.collection(sourceCollectionName);
+        let sourceCollection = db.collection(sourceCollectionName);
         console.log(sourceCollectionName);
         sourceCollection.findOne({email: email}, function (err, result) {
             if (err) {
@@ -53,18 +85,31 @@ var analyzeDatas = function (args) {
                 var likesPromise = [];
                 var photos = [];
 
+
+                var userWords = [];
+
                 for (var photoId in result.data) {
                     let photo = result.data[photoId];
-                    if (typeof photo.message != 'undefined') {
-                        report.usedWords += photo.message;
+                    /*
+                     Calc used words
+                     */
+                    if (sourceCollectionName === collections.userPost && typeof photo.message != 'undefined') {
+                        userWords = userWords.concat(stringFilter(photo.message));
+                    }
+                    if ((sourceCollectionName === collections.userTagged || sourceCollectionName === collections.userUploaded) && typeof photo.name != 'undefined') {
+                        userWords = userWords.concat(stringFilter(photo.name));
                     }
                     photos.push(photo);
                     likesPromise.push(fb.getLikesAsync(photo));
                 }
                 /*
+                Takes 50 most important words and maps it in [ { word: 'auguri', count: 40 } , ...]
+                 */
+                userWords=importantWords(userWords,50);
+                report.usedWords=userWords;
+                /*
                  Waits for every promise, compute statistics
                  */
-
                 Promise.all(likesPromise).then(function (results) {
                     /*
                      Utility init
@@ -82,12 +127,12 @@ var analyzeDatas = function (args) {
                          Calculate likes by person
                          */
                         for (var i in likesArray) {
-                            //noinspection JSUnfilteredForInLoop
                             let likerName = likesArray[i].name.replace('.', '');
-                            if (typeof likesByPerson[likerName] === 'undefined') {
-                                likesByPerson[likerName] = 0;
+                            let likerId = likesArray[i].id;
+                            if (typeof likesByPerson[likerId] === 'undefined') {
+                                likesByPerson[likerId] = {name: likerName, count: 0};
                             }
-                            likesByPerson[likerName]++;
+                            likesByPerson[likerId].count++;
                         }
                         /*
                          Substitute facebook first page likes with all likes
@@ -106,9 +151,18 @@ var analyzeDatas = function (args) {
                         }
                     });
                     /*
+                    Convert likesByPersonObj in likesByPersonArray
+                     */
+                    var likesByPersonArray = [];
+                    let keys = Object.keys(likesByPerson);
+                    for (let i = 0; i < keys.length; i++) {
+                        let key=keys[i];
+                        likesByPersonArray.push({id: key, name: likesByPerson[key].name, count: likesByPerson[key].count});
+                    }
+                    /*
                      Store results in the report
                      */
-                    report.likesByPerson = likesByPerson;
+                    report.likesByPerson = likesByPersonArray;
                     report.bestElement = bestPost;
                     report.likesCount = totalLikes;
                     return report;
@@ -116,8 +170,8 @@ var analyzeDatas = function (args) {
                     /*
                      Group posts by period
                      */
-                    var groupedByMonthYear = _.groupBy(photos, groupByMonthYear);
-                    var keys = Object.keys(groupedByMonthYear);
+                    let groupedByMonthYear = _.groupBy(photos, groupByMonthYear);
+                    let keys = Object.keys(groupedByMonthYear);
                     for (let i = 0; i < keys.length; i++) {
                         var key,
                             likesInPeriod = _.reduce(groupedByMonthYear[key = keys[i]], function (memo, item) {
@@ -129,11 +183,30 @@ var analyzeDatas = function (args) {
                         groupedByMonthYear[key] = likesInPeriod;
                     }
                     report.periodGroupedLikes = groupedByMonthYear;
+
+                }).then(function () {
+                    /*
+                     Group post by hour
+                     */
+                    let groupedByHour = _.groupBy(photos, groupByHour);
+                    let keys = Object.keys(groupedByHour);
+                    for (let i = 0; i < keys.length; i++) {
+                        var key,
+                            likesInPeriod = _.reduce(groupedByHour[key = keys[i]], function (memo, item) {
+                                if (typeof item.likes.length === 'undefined')
+                                    return memo;
+                                else
+                                    return memo + item.likes.length;
+                            }, 0);
+                        groupedByHour[key] = likesInPeriod;
+                    }
+                    report.hourGroupedLikes = groupedByHour;
+                    console.log(report);
                 }).then(function () {
                     /*
                      Inserts analysis in the database
                      */
-                    let destinationCollection=db.collection(destinationCollectionName);
+                    let destinationCollection = db.collection(destinationCollectionName);
                     destinationCollection.update({email: email}, {
                         email: email,
                         analysis: report
