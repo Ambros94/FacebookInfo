@@ -12,13 +12,18 @@ module.exports = function (app, passport) {
     app.get('/', function (req, res) {
         res.render('index.ejs');
     });
+    ///////////////////////////
+    // Terms and conditions //
+    ///////////////////////////
+    app.get('/login/terms', function (req, res) {
+        res.render('terms_conditions.ejs', {});
+    });
 
     // ADMIN PAGE =========================
     app.get('/admin', function (req, res) {
-
         res.render('admin.ejs', {});
-
     });
+
     /*
      Interations with state //TODO Citro guarda queste
      */
@@ -28,6 +33,9 @@ module.exports = function (app, passport) {
         res.send({state});
     });
     app.get('/getState/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
         var email = req.params.email;
         var state = Session.getState(email);
         res.send({state});
@@ -42,14 +50,14 @@ module.exports = function (app, passport) {
             var email = req.user.facebook.email;
             if (token) {
                 fb.init(token);
-                Session.updateState(email,"Post downloading");
+                Session.updateState(email, "Post downloading");
                 fb.getPosts().then(function (result) {
                     /*
                      Store the feed
                      */
                     return db.storeUserFeed(email, result);
                 }).then(function () {
-                    Session.updateState(email,"Uploaded photos downloading");
+                    Session.updateState(email, "Uploaded photos downloading");
                     /*
                      Get uploaded photos
                      */
@@ -60,7 +68,7 @@ module.exports = function (app, passport) {
                      */
                     return db.storeUserUploadedPhotos(email, result);
                 }).then(function () {
-                    Session.updateState(email,"Tagged photos downloading");
+                    Session.updateState(email, "Tagged photos downloading");
                     /*
                      Get tagged photos
                      */
@@ -71,25 +79,25 @@ module.exports = function (app, passport) {
                      */
                     return db.storeUserTaggedPhotos(email, result)
                 }).then(function () {
-                    Session.updateState(email,"Looking at your posts!");
+                    Session.updateState(email, "Looking at your posts!");
                     /*
                      Feed analysis
                      */
                     return analyzer.analyzePosts(email);
                 }).then(function () {
-                    Session.updateState(email,"Looking at photos where u are tagged!");
+                    Session.updateState(email, "Looking at photos where u are tagged!");
                     /*
                      Tagged photos analysis
                      */
                     return analyzer.analyzeTaggedPhotos(email);
                 }).then(function () {
-                    Session.updateState(email,"Looking at your photos!");
+                    Session.updateState(email, "Looking at your photos!");
                     /*
                      Uploaded photo analysis
                      */
                     return analyzer.analyzeUploadedPhotos(email);
                 }).then(function () {
-                    Session.updateState(email,"Analysis completed!");
+                    Session.updateState(email, "Analysis completed!");
                 }).catch(function (err) {
                     console.log("Error during downloading or analiyis", err);
                 });
@@ -116,14 +124,13 @@ module.exports = function (app, passport) {
     // locally --------------------------------
     // LOGIN ===============================
     // show the login form
-    app.get('/login', function (req, res) {
-        res.render('login.ejs', {message: req.flash('loginMessage')});
+    app.get('/admin/login', function (req, res) {
+        res.render('admin_login.ejs', {message: req.flash('loginMessage')});
     });
-
-    // process the login form
-    app.post('/login', passport.authenticate('local-login', {
-        successRedirect: '/profile', // redirect to the secure profile section
-        failureRedirect: '/login', // redirect back to the signup page if there is an error
+    // Locally autenticate the admin
+    app.post('/admin/login', passport.authenticate('local-login', {
+        successRedirect: '/admin', // redirect to the secure profile section
+        failureRedirect: '/admin/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
