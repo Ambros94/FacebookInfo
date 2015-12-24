@@ -18,6 +18,11 @@ module.exports = function (app, passport) {
     app.get('/login/terms', function (req, res) {
         res.render('terms_conditions.ejs', {});
     });
+    app.get('/terms_accepted', function (req, res) {
+        Session.acceptTerms(req.user.facebook.email);
+        console.log(Session.hasAcceptedTerms(req.user.facebook.email));
+        res.redirect('/profile');
+    });
 
     // ADMIN PAGE =========================
     app.get('/admin', function (req, res) {
@@ -25,7 +30,7 @@ module.exports = function (app, passport) {
     });
 
     /*
-     Interations with state //TODO Citro guarda queste
+     Interations with state
      */
     app.get('/getState', isLoggedIn, function (req, res) {
         var email = req.user.facebook.email;
@@ -40,76 +45,43 @@ module.exports = function (app, passport) {
         var state = Session.getState(email);
         res.send({state});
     });
+    /*
+     Analyze user
+     */
+    app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        res.send({email});
+        if (Session.lastAnalysis() - new Date() > 10) {
+            //TODO Fare analisi
+            Session.analysisCompleted(email);
+        }
+        //TODO CHECK IF THE ANALYSIS HAS TO BE DONE AND THEN REDIRECT TO THE RIGHT PAGE
+    });
+
+    app.get('/analyzeUser', isLoggedIn, function (req, res) {
+        res.redirect('/analyzeUser/' + req.user.facebook.email);
+    });
+
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function (req, res) {
 
-            /*
-             On login it stores user info
-             */
-            var token = req.user.facebook.token;
-            var email = req.user.facebook.email;
-            if (token) {
-                fb.init(token);
-                Session.updateState(email, "Post downloading");
-                fb.getPosts().then(function (result) {
-                    /*
-                     Store the feed
-                     */
-                    return db.storeUserFeed(email, result);
-                }).then(function () {
-                    Session.updateState(email, "Uploaded photos downloading");
-                    /*
-                     Get uploaded photos
-                     */
-                    return fb.getPhotos('uploaded');
-                }).then(function (result) {
-                    /*
-                     Store uploaded photos
-                     */
-                    return db.storeUserUploadedPhotos(email, result);
-                }).then(function () {
-                    Session.updateState(email, "Tagged photos downloading");
-                    /*
-                     Get tagged photos
-                     */
-                    return fb.getPhotos('tagged');
-                }).then(function (result) {
-                    /*
-                     Store tagged photos
-                     */
-                    return db.storeUserTaggedPhotos(email, result)
-                }).then(function () {
-                    Session.updateState(email, "Looking at your posts!");
-                    /*
-                     Feed analysis
-                     */
-                    return analyzer.analyzePosts(email);
-                }).then(function () {
-                    Session.updateState(email, "Looking at photos where u are tagged!");
-                    /*
-                     Tagged photos analysis
-                     */
-                    return analyzer.analyzeTaggedPhotos(email);
-                }).then(function () {
-                    Session.updateState(email, "Looking at your photos!");
-                    /*
-                     Uploaded photo analysis
-                     */
-                    return analyzer.analyzeUploadedPhotos(email);
-                }).then(function () {
-                    Session.updateState(email, "Analysis completed!");
-                }).catch(function (err) {
-                    console.log("Error during downloading or analiyis", err);
-                });
-
-
-                res.render('profile.ejs', {
-                    user: req.user
-                });
-
-            }
+        /*
+         Check if the authenticated user has accepted terms & conditions
+         */
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            res.render('profile.ejs', {
+                user: req.user
+            });
         }
-    );
+        else {
+            res.redirect('/login/terms');
+        }
+
+    });
 
     // LOGOUT ==============================
     app.get('/logout', function (req, res) {
