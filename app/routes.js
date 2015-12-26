@@ -17,9 +17,7 @@ module.exports = function (app, passport) {
     /*
      User profile (MAIN PAGE)
      */
-
     app.get('/profile', isLoggedIn, function (req, res) {
-
         /*
          Check if the authenticated user has accepted terms & conditions
          */
@@ -40,7 +38,9 @@ module.exports = function (app, passport) {
     /////////////////////////////////////////////
 
     app.get('/admin', isAdmin, function (req, res) {
-        res.render('admin.ejs', {});
+        res.render('control-panel.ejs', {
+            user: req.user
+        });
     });
 
     /////////////////////////////////////////////
@@ -94,6 +94,13 @@ module.exports = function (app, passport) {
     /////////////////////////////////////////////
 
     /*
+     Return users data
+     */
+    app.get('/userStats', function (req, res) {//TODO PROTEGGERE COME ADMIN
+        res.send('{"data":[ [  "Id","Name", "mail","Last analysis", "Analysis count",  "Ban", "elete data"] ]}');
+    });
+
+    /*
      Analyze email idenfied user, if necessary (defined by policy)
      */
     app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
@@ -114,6 +121,17 @@ module.exports = function (app, passport) {
      */
     app.get('/analyzeUser', isLoggedIn, function (req, res) {
         res.redirect('/analyzeUser/' + req.user.facebook.email);
+    });
+
+    /*
+     Force an analysis for email idenfied user (only for admins)
+     */
+    app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
+        var email = req.params.email;
+        if (Session.lastAnalysis() - new Date() > 10) {
+            //TODO Fare analisi
+            Session.analysisCompleted(email);
+        }
     });
 
 
@@ -247,7 +265,7 @@ module.exports = function (app, passport) {
     }
 
     function isAdmin(req, res, next) {
-        if (typeof req.user.local.email === 'undefined')
+        if (typeof req.user === 'undefined' || typeof req.user.local === 'undefined')
             res.redirect('/');
         else
             return next();

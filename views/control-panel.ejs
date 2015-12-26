@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+    <title>Node Authentication</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/s/bs-3.3.5/jqc-1.11.3,dt-1.10.10,r-2.0.0,sc-1.4.0,se-1.1.0/datatables.min.css"/>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <style>
+        body {
+            padding-top: 80px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="page-header text-center">
+        <h1><span class="fa fa-anchor"></span> Profile Page</h1>
+        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+    </div>
+
+    <div class="row">
+
+        <!-- LOCAL INFORMATION -->
+        <div class="col-sm-6">
+            <div class="well">
+                <h3><span class="fa fa-user"></span> Local</h3>
+
+                <% if (user.local.email) { %>
+                <p>
+                    <strong>id</strong>: <%= user._id %><br>
+                    <strong>email</strong>: <%= user.local.email %><br>
+                    <strong>password</strong>: <%= user.local.password %>
+                </p>
+
+                <a href="/unlink/local" class="btn btn-default">Unlink</a>
+                <% } else { %>
+                <a href="/connect/local" class="btn btn-default">Connect Local</a>
+                <% } %>
+
+            </div>
+        </div>
+
+        <!-- FACEBOOK INFORMATION -->
+        <div class="col-sm-6">
+            <div class="well">
+                <h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
+
+                <!-- check if the user has this token (is the user authenticated with this social account) -->
+                <% if (user.facebook.token) { %>
+                <p>
+                    <strong>id</strong>: <%= user.facebook.id %><br>
+                    <strong>token</strong>: <%= user.facebook.token %><br>
+                    <strong>email</strong>: <%= user.facebook.email %><br>
+                    <strong>name</strong>: <%= user.facebook.name %><br>
+                </p>
+
+                <a href="/unlink/facebook" class="btn btn-primary">Unlink</a>
+                <% } else { %>
+                <a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
+                <% } %>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <table id="userTable" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Last analysis</th>
+                <th>Analysis count</th>
+                <th>Ban</th>
+                <th>Delete data</th>
+
+            </tr>
+            </thead>
+            <tfoot>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Last analysis</th>
+                <th>Analysis count</th>
+                <th>Ban</th>
+                <th>Delete data</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+
+</div>
+<script type="text/javascript" src="https://cdn.datatables.net/s/bs-3.3.5/jqc-1.11.3,dt-1.10.10,r-2.0.0,sc-1.4.0,se-1.1.0/datatables.min.js"></script>
+<script type="text/javascript" src="javascript/control-panel.js"></script>
+</body>
+</html>
