@@ -23,7 +23,7 @@ module.exports = function (app, passport) {
          */
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            res.render('profile.ejs', {
+            res.render('admin.ejs', {
                 user: req.user
             });
         }
