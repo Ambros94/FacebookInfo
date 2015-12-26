@@ -6,66 +6,18 @@ var Session = require('./session');
 
 module.exports = function (app, passport) {
 
-// normal routes ===============================================================
+    /////////////////////////////////////////////
+    //////////////// User pages /////////////////
+    /////////////////////////////////////////////
 
-    // show the home page (will also have our login links)
     app.get('/', function (req, res) {
         res.render('index.ejs');
     });
-    ///////////////////////////
-    // Terms and conditions //
-    ///////////////////////////
-    app.get('/login/terms', function (req, res) {
-        res.render('terms_conditions.ejs', {});
-    });
-    app.get('/terms_accepted', function (req, res) {
-        Session.acceptTerms(req.user.facebook.email);
-        console.log(Session.hasAcceptedTerms(req.user.facebook.email));
-        res.redirect('/profile');
-    });
-
-    // ADMIN PAGE =========================
-    app.get('/admin', function (req, res) {
-        res.render('admin.ejs', {});
-    });
 
     /*
-     Interations with state
+     User profile (MAIN PAGE)
      */
-    app.get('/getState', isLoggedIn, function (req, res) {
-        var email = req.user.facebook.email;
-        var state = Session.getState(email);
-        res.send({state});
-    });
-    app.get('/getState/:email', isLoggedIn, function (req, res) {
-        /*
-         * Params mapping on local variables
-         */
-        var email = req.params.email;
-        var state = Session.getState(email);
-        res.send({state});
-    });
-    /*
-     Analyze user
-     */
-    app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
-        /*
-         * Params mapping on local variables
-         */
-        var email = req.params.email;
-        res.send({email});
-        if (Session.lastAnalysis() - new Date() > 10) {
-            //TODO Fare analisi
-            Session.analysisCompleted(email);
-        }
-        //TODO CHECK IF THE ANALYSIS HAS TO BE DONE AND THEN REDIRECT TO THE RIGHT PAGE
-    });
 
-    app.get('/analyzeUser', isLoggedIn, function (req, res) {
-        res.redirect('/analyzeUser/' + req.user.facebook.email);
-    });
-
-    // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function (req, res) {
 
         /*
@@ -83,58 +35,150 @@ module.exports = function (app, passport) {
 
     });
 
-    // LOGOUT ==============================
-    app.get('/logout', function (req, res) {
-        req.logout();
-        res.redirect('/');
+    /////////////////////////////////////////////
+    /////////////// Admin Pages /////////////////
+    /////////////////////////////////////////////
+
+    app.get('/admin', isAdmin, function (req, res) {
+        res.render('admin.ejs', {});
     });
 
-// =============================================================================
-// AUTHENTICATE (FIRST LOGIN) ==================================================
-// =============================================================================
+    /////////////////////////////////////////////
+    /////////// Terms and conditions ////////////
+    /////////////////////////////////////////////
 
-    // locally --------------------------------
-    // LOGIN ===============================
-    // show the login form
+    /*
+     Shows terms and conditions,
+     on decline : Redirect to '/',
+     on accept : Redirects to '/terms_accepted'
+     */
+    app.get('/login/terms', function (req, res) {
+        res.render('terms_conditions.ejs', {});
+    });
+
+    /*
+     Users agreed terms, now can login, so is redirected to his profile page
+     */
+    app.get('/terms_accepted', function (req, res) {
+        Session.acceptTerms(req.user.facebook.email);
+        console.log(Session.hasAcceptedTerms(req.user.facebook.email));
+        res.redirect('/profile');
+    });
+
+    /////////////////////////////////////////////
+    /////////////// Ajax routes /////////////////
+    /////////////////////////////////////////////
+
+    /*
+     Return user analysis state for the current logged user
+     */
+    app.get('/getState', isLoggedIn, function (req, res) {
+        var email = req.user.facebook.email;
+        var state = Session.getState(email);
+        res.send({state});
+    });
+    /*
+     Return user analysis state for the email identified user
+     */
+    app.get('/getState/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        var state = Session.getState(email);
+        res.send({state});
+    });
+
+    /////////////////////////////////////////////
+    ///////////////// Analysis //////////////////
+    /////////////////////////////////////////////
+
+    /*
+     Analyze email idenfied user, if necessary (defined by policy)
+     */
+    app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        res.send({email});
+        if (Session.lastAnalysis() - new Date() > 10) {
+            //TODO Fare analisi
+            Session.analysisCompleted(email);
+        }
+        //TODO CHECK IF THE ANALYSIS HAS TO BE DONE AND THEN REDIRECT TO THE RIGHT PAGE
+    });
+
+    /*
+     Analyze current user, if necessary (defined by policy)
+     */
+    app.get('/analyzeUser', isLoggedIn, function (req, res) {
+        res.redirect('/analyzeUser/' + req.user.facebook.email);
+    });
+
+
+    /////////////////////////////////////////////
+    /////////////// Authentication //////////////
+    /////////////////////////////////////////////
+
+    /*
+     Admin login form
+     */
     app.get('/admin/login', function (req, res) {
         res.render('admin_login.ejs', {message: req.flash('loginMessage')});
     });
-    // Locally autenticate the admin
+
+    /*
+     Admin login post
+     */
     app.post('/admin/login', passport.authenticate('local-login', {
+
         successRedirect: '/admin', // redirect to the secure profile section
         failureRedirect: '/admin/login', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
-    // SIGNUP =================================
-    // show the signup form
-    app.get('/signup', function (req, res) {
+    /*
+     Login, for admin and normal users
+     */
+    app.get('/logout', function (req, res) {
+        req.logout();
+        res.redirect('/');
+    });
+
+    /*
+     Admin sign-up form
+     */
+    app.get('/admin/signup', function (req, res) {
         res.render('signup.ejs', {message: req.flash('signupMessage')});
     });
 
-    // process the signup form
-    app.post('/signup', passport.authenticate('local-signup', {
-        successRedirect: '/profile', // redirect to the secure profile section
-        failureRedirect: '/signup', // redirect back to the signup page if there is an error
+    /*
+     Admin sign-up post
+     */
+    app.post('/admin/signup', passport.authenticate('local-signup', {
+        successRedirect: '/admin', // redirect to the secure admin section
+        failureRedirect: '/admin/signup', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
 
-    // facebook -------------------------------
-
-    // send to facebook to do the authentication
+    /*
+     Facebook login (send to facebook to do the authentication)
+     */
     app.get('/auth/facebook', passport.authenticate('facebook', {scope: 'email'}));
 
-    // handle the callback after facebook has authenticated the user
+    /*
+     Handles facebook callback
+     */
     app.get('/auth/facebook/callback',
         passport.authenticate('facebook', {
             successRedirect: '/profile',
             failureRedirect: '/'
         }));
 
-
-// =============================================================================
-// AUTHORIZE (ALREADY LOGGED IN / CONNECTING OTHER SOCIAL ACCOUNT) =============
-// =============================================================================
+    /////////////////////////////////////////////
+    //////////// Account LINKING //////////////
+    /////////////////////////////////////////////
 
     // locally --------------------------------
     app.get('/connect/local', function (req, res) {
@@ -159,14 +203,18 @@ module.exports = function (app, passport) {
         }));
 
 
-// =============================================================================
-// UNLINK ACCOUNTS =============================================================
-// =============================================================================
-// used to unlink accounts. for social accounts, just remove the token
-// for local account, remove email and password
-// user account will stay active in case they want to reconnect in the future
+    /////////////////////////////////////////////
+    //////////// Account UNLINKING //////////////
+    /////////////////////////////////////////////
+    /*
+     * used to unlink accounts. for social accounts, just remove the token
+     * for local account, remove email and password
+     *user account will stay active in case they want to reconnect in the future
+     */
 
-    // local -----------------------------------
+    /*
+     Unlink local accounts
+     */
     app.get('/unlink/local', isLoggedIn, function (req, res) {
         var user = req.user;
         user.local.email = undefined;
@@ -176,7 +224,9 @@ module.exports = function (app, passport) {
         });
     });
 
-    // facebook -------------------------------
+    /*
+     Unlink facebook accounts
+     */
     app.get('/unlink/facebook', isLoggedIn, function (req, res) {
         var user = req.user;
         user.facebook.token = undefined;
@@ -185,12 +235,22 @@ module.exports = function (app, passport) {
         });
     });
 
+    /////////////////////////////////////////////
+    //////////// Utility functions //////////////
+    /////////////////////////////////////////////
 
-// route middleware to ensure user is logged in
     function isLoggedIn(req, res, next) {
         if (req.isAuthenticated())
             return next();
         // If the User is not logged in i redirect him on the homepage
         res.redirect('/');
     }
-}
+
+    function isAdmin(req, res, next) {
+        if (typeof req.user.local.email === 'undefined')
+            res.redirect('/');
+        else
+            return next();
+    }
+
+};
