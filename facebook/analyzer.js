@@ -3,9 +3,11 @@
  */
 "use strict";
 
-
-var dbPromise = require('../app/MongoManager').dbPromise;
+var db = require('../app/MongoManager').monk;
 var collections = require('../app/MongoManager').collections;
+var Sessions = require('../app/session');
+var query = require('../app/QueryManager');
+
 var _ = require('underscore');
 var fb = require('./crawler');
 
@@ -64,191 +66,280 @@ var analyzeDatas = function (args) {
         sourceCollectionName = args.sourceCollection,
         destinationCollectionName = args.destinationCollection;
 
-    dbPromise.then(function (db) {
-        /*
-         Analyze the feed from user, by email identified
-         */
-        let sourceCollection = db.collection(sourceCollectionName);
-        console.log(sourceCollectionName);
-        sourceCollection.findOne({email: email}, function (err, result) {
-            if (err) {
-                console.log(err);
-            } else {
-                /**************************************
-                 Calculate total likes on the feed
-                 Find the most successful post
-                 ***************************************/
-                const report = new AnalysisReport();
+    /*
+     Analyze the feed from user, by email identified
+     */
+    let sourceCollection = db.get(sourceCollectionName);
+    sourceCollection.findOne({email: email}, function (err, result) {
+        if (err) {
+            console.log(err);
+        } else {
+            /**************************************
+             Calculate total likes on the feed
+             Find the most successful post
+             ***************************************/
+            const report = new AnalysisReport();
+            /*
+             Launch all getLikes Promises
+             */
+            var likesPromise = [];
+            var photos = [];
+
+
+            var userWords = [];
+
+            for (var photoId in result.data) {
+                let photo = result.data[photoId];
                 /*
-                 Launch all getLikes Promises
+                 Calc used words
                  */
-                var likesPromise = [];
-                var photos = [];
+                if (sourceCollectionName === collections.userPost && typeof photo.message != 'undefined') {
+                    userWords = userWords.concat(stringFilter(photo.message));
+                }
+                if ((sourceCollectionName === collections.userTagged || sourceCollectionName === collections.userUploaded) && typeof photo.name != 'undefined') {
+                    userWords = userWords.concat(stringFilter(photo.name));
+                }
+                photos.push(photo);
+                likesPromise.push(fb.getLikesAsync(photo));
+            }
+            /*
+             Takes 50 most important words and maps it in [ { word: 'auguri', count: 40 } , ...]
+             */
+            userWords = importantWords(userWords, 50);
+            report.usedWords = userWords;
+            /*
+             Waits for every promise, compute statistics
+             */
+            Promise.all(likesPromise).then(function (results) {
+                /*
+                 Utility init
+                 */
+                var totalLikes = 0,
+                    bestPost = {likesCount: -1, post: -1};
+                /*
+                 Collect promises results
+                 */
+                var likesByPerson = {};
 
-
-                var userWords = [];
-
-                for (var photoId in result.data) {
-                    let photo = result.data[photoId];
+                results.forEach(function (likesArray, index) {
+                    let likesCount = Object.keys(likesArray).length;
                     /*
-                     Calc used words
+                     Calculate likes by person
                      */
-                    if (sourceCollectionName === collections.userPost && typeof photo.message != 'undefined') {
-                        userWords = userWords.concat(stringFilter(photo.message));
+                    for (var i in likesArray) {
+                        let likerName = likesArray[i].name.replace('.', '');
+                        let likerId = likesArray[i].id;
+                        if (typeof likesByPerson[likerId] === 'undefined') {
+                            likesByPerson[likerId] = {name: likerName, count: 0};
+                        }
+                        likesByPerson[likerId].count++;
                     }
-                    if ((sourceCollectionName === collections.userTagged || sourceCollectionName === collections.userUploaded) && typeof photo.name != 'undefined') {
-                        userWords = userWords.concat(stringFilter(photo.name));
+                    /*
+                     Substitute facebook first page likes with all likes
+                     */
+                    photos[index].likes = likesArray;
+                    /*
+                     Increments total likes counter
+                     */
+                    totalLikes += likesCount;
+                    /*
+                     Find the most successful post
+                     */
+                    if (likesCount > bestPost.likesCount) {
+                        bestPost.likesCount = likesCount;
+                        bestPost.post = photos[index];
                     }
-                    photos.push(photo);
-                    likesPromise.push(fb.getLikesAsync(photo));
+                });
+                /*
+                 Convert likesByPersonObj in likesByPersonArray
+                 */
+                var likesByPersonArray = [];
+                let keys = Object.keys(likesByPerson);
+                for (let i = 0; i < keys.length; i++) {
+                    let key = keys[i];
+                    likesByPersonArray.push({id: key, name: likesByPerson[key].name, count: likesByPerson[key].count});
                 }
                 /*
-                Takes 50 most important words and maps it in [ { word: 'auguri', count: 40 } , ...]
+                Sort likesByPersonArray by likesCount
                  */
-                userWords=importantWords(userWords,50);
-                report.usedWords=userWords;
+                likesByPersonArray = likesByPersonArray.sort(function (a, b) {
+                    return b.count - a.count;
+                });
                 /*
-                 Waits for every promise, compute statistics
+                 Store results in the report
                  */
-                Promise.all(likesPromise).then(function (results) {
-                    /*
-                     Utility init
-                     */
-                    var totalLikes = 0,
-                        bestPost = {likesCount: -1, post: -1};
-                    /*
-                     Collect promises results
-                     */
-                    var likesByPerson = {};
+                report.likesByPerson = likesByPersonArray;
+                report.bestElement = bestPost;
+                report.likesCount = totalLikes;
+                return report;
+            }).then(function () {
+                /*
+                 Group posts by period
+                 */
+                let groupedByMonthYear = _.groupBy(photos, groupByMonthYear);
+                let keys = Object.keys(groupedByMonthYear);
+                for (let i = 0; i < keys.length; i++) {
+                    var key,
+                        likesInPeriod = _.reduce(groupedByMonthYear[key = keys[i]], function (memo, item) {
+                            if (typeof item.likes.length === 'undefined')
+                                return memo;
+                            else
+                                return memo + item.likes.length;
+                        }, 0);
+                    groupedByMonthYear[key] = likesInPeriod;
+                }
+                report.periodGroupedLikes = groupedByMonthYear;
 
-                    results.forEach(function (likesArray, index) {
-                        let likesCount = Object.keys(likesArray).length;
-                        /*
-                         Calculate likes by person
-                         */
-                        for (var i in likesArray) {
-                            let likerName = likesArray[i].name.replace('.', '');
-                            let likerId = likesArray[i].id;
-                            if (typeof likesByPerson[likerId] === 'undefined') {
-                                likesByPerson[likerId] = {name: likerName, count: 0};
-                            }
-                            likesByPerson[likerId].count++;
-                        }
-                        /*
-                         Substitute facebook first page likes with all likes
-                         */
-                        photos[index].likes = likesArray;
-                        /*
-                         Increments total likes counter
-                         */
-                        totalLikes += likesCount;
-                        /*
-                         Find the most successful post
-                         */
-                        if (likesCount > bestPost.likesCount) {
-                            bestPost.likesCount = likesCount;
-                            bestPost.post = photos[index];
-                        }
-                    });
-                    /*
-                    Convert likesByPersonObj in likesByPersonArray
-                     */
-                    var likesByPersonArray = [];
-                    let keys = Object.keys(likesByPerson);
-                    for (let i = 0; i < keys.length; i++) {
-                        let key=keys[i];
-                        likesByPersonArray.push({id: key, name: likesByPerson[key].name, count: likesByPerson[key].count});
-                    }
-                    /*
-                     Store results in the report
-                     */
-                    report.likesByPerson = likesByPersonArray;
-                    report.bestElement = bestPost;
-                    report.likesCount = totalLikes;
-                    return report;
-                }).then(function () {
-                    /*
-                     Group posts by period
-                     */
-                    let groupedByMonthYear = _.groupBy(photos, groupByMonthYear);
-                    let keys = Object.keys(groupedByMonthYear);
-                    for (let i = 0; i < keys.length; i++) {
-                        var key,
-                            likesInPeriod = _.reduce(groupedByMonthYear[key = keys[i]], function (memo, item) {
-                                if (typeof item.likes.length === 'undefined')
-                                    return memo;
-                                else
-                                    return memo + item.likes.length;
-                            }, 0);
-                        groupedByMonthYear[key] = likesInPeriod;
-                    }
-                    report.periodGroupedLikes = groupedByMonthYear;
+            }).then(function () {
+                /*
+                 Group post by hour
+                 */
+                let groupedByHour = _.groupBy(photos, groupByHour);
+                let keys = Object.keys(groupedByHour);
+                for (let i = 0; i < keys.length; i++) {
+                    var key,
+                        likesInPeriod = _.reduce(groupedByHour[key = keys[i]], function (memo, item) {
+                            if (typeof item.likes.length === 'undefined')
+                                return memo;
+                            else
+                                return memo + item.likes.length;
+                        }, 0);
+                    groupedByHour[key] = likesInPeriod;
+                }
+                report.hourGroupedLikes = groupedByHour;
+                console.log(report);
+            }).then(function () {
+                /*
+                 Inserts analysis in the database
+                 */
+                let destinationCollection = db.get(destinationCollectionName);
 
-                }).then(function () {
-                    /*
-                     Group post by hour
-                     */
-                    let groupedByHour = _.groupBy(photos, groupByHour);
-                    let keys = Object.keys(groupedByHour);
-                    for (let i = 0; i < keys.length; i++) {
-                        var key,
-                            likesInPeriod = _.reduce(groupedByHour[key = keys[i]], function (memo, item) {
-                                if (typeof item.likes.length === 'undefined')
-                                    return memo;
-                                else
-                                    return memo + item.likes.length;
-                            }, 0);
-                        groupedByHour[key] = likesInPeriod;
-                    }
-                    report.hourGroupedLikes = groupedByHour;
-                    console.log(report);
-                }).then(function () {
-                    /*
-                     Inserts analysis in the database
-                     */
-                    let destinationCollection = db.collection(destinationCollectionName);
-                    destinationCollection.update({email: email}, {
+                destinationCollection.findAndModify({
+                    "query": {"email": email},
+                    "update": {
                         email: email,
                         analysis: report
-                    }, {upsert: true}).then(function () {
-                        console.log("Report correctly stored");
-                    }).catch(function (err) {
-                        console.log("Cannot upsert tagged_photos", err);
-                    });
-                }).catch(function (err) {
-                    console.error(err);
-                });
-            }
-        });
+                    },
+                    "upsert": true,
+                    "new": true
+                }, function (err, doc) {
+                    if (err) {
+                        res.send("There was a problem adding the information to the database.");
+                    }
+                    else {
+                        //console.log(doc);
+                        console.log("Analysis stored");
 
-    }).catch(function (err) {
-        console.log(err);
+                    }
+                });
+
+
+
+            }).catch(function (err) {
+                console.error(err);
+            });
+        }
     });
 
+
 };
 
-module.exports = {
-    analyzeUploadedPhotos: function (email) {
-        analyzeDatas({
-            email: email,
-            sourceCollection: collections.userUploaded,
-            destinationCollection: collections.userUploadedAnalysis
-        })
-    },
+var analyzeUploadedPhotos = function (email) {
+    analyzeDatas({
+        email: email,
+        sourceCollection: collections.userUploaded,
+        destinationCollection: collections.userUploadedAnalysis
+    })
+};
+var analyzeTaggedPhotos = function (email) {
+    analyzeDatas({
+        email: email,
+        sourceCollection: collections.userTagged,
+        destinationCollection: collections.userTaggedAnalysis
+    })
+};
+var analyzePosts = function (email) {
+    analyzeDatas({
+        email: email,
+        sourceCollection: collections.userPost,
+        destinationCollection: collections.userPostAnalysis
+    })
+};
 
-    analyzeTaggedPhotos: function (email) {
-        analyzeDatas({
-            email: email,
-            sourceCollection: collections.userTagged,
-            destinationCollection: collections.userTaggedAnalysis
-        })
-    },
+var analyzeUser = function (email, token) {
+    Sessions.updateState(email, "No analysis");
+    if (token) {
+        fb.init(token);
+        Sessions.updateState(email, "Post downloading");
+        fb.getPosts().then(function (result) {
+            /*
+             Store the feed
+             */
+            return query.storeUserFeed(email, result);
+        }).then(function (res) {
+            console.log("Store result :",res);
+            Sessions.updateState(email, "Uploaded photos downlading");
+            /*
+             Get uploaded photos
+             */
+            return fb.getPhotos('uploaded');
+        }).catch(function (err) {
+            console.log("Error during photo downloading", err);
+        }).then(function (res) {
+            console.log("Downloaded photos",res);
 
-    analyzePosts: function (email) {
-        analyzeDatas({
-            email: email,
-            sourceCollection: collections.userPost,
-            destinationCollection: collections.userPostAnalysis
-        })
+            /*
+             Store uploaded photos
+             */
+            return query.storeUserUploadedPhotos(email, res);
+        }).then(function (res) {
+            console.log("store result",res);
+
+            Sessions.updateState(email, "Tagged photos downloading");
+            /*
+             Get tagged photos
+             */
+            return fb.getPhotos('tagged');
+        }).then(function (res) {
+            console.log(res);
+
+            /*
+             Store tagged photos
+             */
+            return query.storeUserTaggedPhotos(email, res)
+        }).then(function (res) {
+            console.log(res);
+
+            Sessions.updateState(email, "Looking at your posts");
+            /*
+             Feed analysis
+             */
+            return analyzePosts(email);
+        }).then(function () {
+
+            Sessions.updateState(email, "Looking at your photos");
+            /*
+             Tagged photos analysis
+             */
+            return analyzeTaggedPhotos(email);
+        }).then(function () {
+            /*
+             Uploaded photo analysis
+             */
+            analyzeUploadedPhotos(email);
+            Sessions.updateState(email, "Analysis completed");
+        }).catch(function (err) {
+            Sessions.updateState(email, "Cannot analyze, try later");
+            console.log("Error during downloading or analiyis", err);
+        });
     }
 };
+
+
+module.exports = {
+    analyzeUploadedPhotos,
+    analyzeTaggedPhotos,
+    analyzePosts,
+    analyzeUser
+};
+

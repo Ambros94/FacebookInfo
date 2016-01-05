@@ -1,8 +1,10 @@
 "use strict";
-var fb = require('../facebook/crawler');
-var db = require('./QueryManager');
 var analyzer = require('../facebook/analyzer');
 var Session = require('./session');
+var collections = require('./MongoManager.js').collections;
+var monk = require('./MongoManager.js').monk;
+var query = require('./QueryManager.js');
+
 
 module.exports = function (app, passport) {
 
@@ -61,7 +63,6 @@ module.exports = function (app, passport) {
      */
     app.get('/terms_accepted', function (req, res) {
         Session.acceptTerms(req.user.facebook.email);
-        console.log(Session.hasAcceptedTerms(req.user.facebook.email));
         res.redirect('/profile');
     });
 
@@ -88,6 +89,27 @@ module.exports = function (app, passport) {
         var state = Session.getState(email);
         res.send({state});
     });
+    /*
+     Ban email identified user
+     */
+    app.get('/banUser/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        res.send({email});
+    });
+    /*
+     Clear email identified user data
+     */
+    app.get('/clearUser/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        query.clearUser(email);
+        res.send({email});
+    });
 
     /////////////////////////////////////////////
     ///////////////// Analysis //////////////////
@@ -96,8 +118,24 @@ module.exports = function (app, passport) {
     /*
      Return users data
      */
-    app.get('/userStats', function (req, res) {//TODO PROTEGGERE COME ADMIN
-        res.send('{"data":[ [  "Id","Name", "mail","Last analysis", "Analysis count",  "Ban", "elete data"] ]}');
+    app.get('/userStats', function (req, res) {
+        var userArray = [];
+        //Todo, far fare al modulo delle query
+        var users = monk.get(collections.users);
+        users.find({}, {stream: true})
+            .each(function (user) {
+                if (typeof user.facebook !== 'undefined') {
+                    userArray.push([user.facebook.id, user.facebook.name, user.facebook.email, 'Never', 'Tante', 'Ban', 'Delete']);
+                }
+            })
+            .error(function (err) {
+                res.send(err);
+            })
+            .success(function () {
+                res.send({data: userArray});
+
+            });
+
     });
 
     /*
@@ -108,12 +146,10 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
+        var token = req.user.facebook.token;
         res.send({email});
-        if (Session.lastAnalysis() - new Date() > 10) {
-            //TODO Fare analisi
-            Session.analysisCompleted(email);
-        }
-        //TODO CHECK IF THE ANALYSIS HAS TO BE DONE AND THEN REDIRECT TO THE RIGHT PAGE
+        //TODO check if the analysis has to be done
+        analyzer.analyzeUser(email, token);
     });
 
     /*
@@ -126,12 +162,9 @@ module.exports = function (app, passport) {
     /*
      Force an analysis for email idenfied user (only for admins)
      */
-    app.get('/analyzeUser/:email', isLoggedIn, function (req, res) {
+    app.get('/forceAnalysis/:email', isAdmin, function (req, res) {
         var email = req.params.email;
-        if (Session.lastAnalysis() - new Date() > 10) {
-            //TODO Fare analisi
-            Session.analysisCompleted(email);
-        }
+        analyzer.analyzeUser(email);
     });
 
 
