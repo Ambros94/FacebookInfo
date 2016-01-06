@@ -1,9 +1,15 @@
 /**
  * Created by lambrosini on 23/12/15.
  */
+var moment = require('moment');
+
 var sessions = {};
 
+
 var Sessions = {
+
+    'betweenAnalysisTime': 5,
+
     getState: function (email) {
         if (typeof sessions[email] === 'undefined') {
             return "No analysis";
@@ -19,11 +25,21 @@ var Sessions = {
     analysisCompleted: function (email) {
         if (typeof sessions[email] === 'undefined')
             sessions[email] = {};
-        return sessions[email].lastUpdate = new Date();
+        if (typeof sessions[email].count === 'undefined')
+            sessions[email].count = 0;
+        sessions[email].count++;
+        return sessions[email].lastUpdate = moment();
+    },
+    analysisCount: function (email) {
+        if (typeof sessions[email] === 'undefined')
+            sessions[email] = {};
+        if (typeof sessions[email].count === 'undefined')
+            return 0;
+        return sessions[email].count;
     },
     lastAnalysis: function (email) {
         if (typeof sessions[email] === 'undefined')
-            return new Date('2011-12-12');
+            return "04/09/2013 15:00:00";
         return sessions[email].lastUpdate;
     },
     acceptTerms: function (email) {

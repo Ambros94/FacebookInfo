@@ -207,7 +207,6 @@ var analyzeDatas = function (args) {
                     groupedByHour[key] = likesInPeriod;
                 }
                 report.hourGroupedLikes = groupedByHour;
-                console.log(report);
             }).then(function () {
                 /*
                  Inserts analysis in the database
@@ -277,46 +276,42 @@ var analyzeUser = function (email, token) {
              */
             return query.storeUserFeed(email, result);
         }).then(function (res) {
-            console.log("Store result :",res);
+            //console.log("Store result :",res);
             Sessions.updateState(email, "Uploaded photos downlading");
             /*
              Get uploaded photos
              */
             return fb.getPhotos('uploaded');
         }).catch(function (err) {
-            console.log("Error during photo downloading", err);
+            //console.log("Error during photo downloading", err);
         }).then(function (res) {
-            console.log("Downloaded photos",res);
+            //console.log("Downloaded photos",res);
 
             /*
              Store uploaded photos
              */
             return query.storeUserUploadedPhotos(email, res);
         }).then(function (res) {
-            console.log("store result",res);
-
+            //console.log("store result",res);
             Sessions.updateState(email, "Tagged photos downloading");
             /*
              Get tagged photos
              */
             return fb.getPhotos('tagged');
         }).then(function (res) {
-            console.log(res);
-
+            //console.log(res);
             /*
              Store tagged photos
              */
             return query.storeUserTaggedPhotos(email, res)
         }).then(function (res) {
-            console.log(res);
-
+            //console.log(res);
             Sessions.updateState(email, "Looking at your posts");
             /*
              Feed analysis
              */
             return analyzePosts(email);
         }).then(function () {
-
             Sessions.updateState(email, "Looking at your photos");
             /*
              Tagged photos analysis
@@ -328,6 +323,7 @@ var analyzeUser = function (email, token) {
              */
             analyzeUploadedPhotos(email);
             Sessions.updateState(email, "Analysis completed");
+            Sessions.analysisCompleted(email);
         }).catch(function (err) {
             Sessions.updateState(email, "Cannot analyze, try later");
             console.log("Error during downloading or analiyis", err);

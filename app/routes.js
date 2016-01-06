@@ -4,6 +4,7 @@ var Session = require('./session');
 var collections = require('./MongoManager.js').collections;
 var monk = require('./MongoManager.js').monk;
 var query = require('./QueryManager.js');
+var moment = require('moment');
 
 
 module.exports = function (app, passport) {
@@ -90,16 +91,6 @@ module.exports = function (app, passport) {
         res.send({state});
     });
     /*
-     Ban email identified user
-     */
-    app.get('/banUser/:email', isLoggedIn, function (req, res) {
-        /*
-         * Params mapping on local variables
-         */
-        var email = req.params.email;
-        res.send({email});
-    });
-    /*
      Clear email identified user data
      */
     app.get('/clearUser/:email', isLoggedIn, function (req, res) {
@@ -108,6 +99,7 @@ module.exports = function (app, passport) {
          */
         var email = req.params.email;
         query.clearUser(email);
+        console.log("Data cleared {" + email + "}");
         res.send({email});
     });
 
@@ -121,11 +113,18 @@ module.exports = function (app, passport) {
     app.get('/userStats', function (req, res) {
         var userArray = [];
         //Todo, far fare al modulo delle query
+        /*
+         Using monk because fires a success event on query complete
+         */
         var users = monk.get(collections.users);
         users.find({}, {stream: true})
             .each(function (user) {
                 if (typeof user.facebook !== 'undefined') {
-                    userArray.push([user.facebook.id, user.facebook.name, user.facebook.email, 'Never', 'Tante', 'Ban', 'Delete']);
+                    /*
+                     [id , name , email , lastAnalysis , analysisCount , button , button];
+                     */
+                    let email = user.facebook.email;
+                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear']);
                 }
             })
             .error(function (err) {
@@ -148,8 +147,18 @@ module.exports = function (app, passport) {
         var email = req.params.email;
         var token = req.user.facebook.token;
         res.send({email});
-        //TODO check if the analysis has to be done
-        analyzer.analyzeUser(email, token);
+        var lastAnalysis = Session.lastAnalysis(email);
+        /*
+         Delta , expressed in ms, between last analysis and now
+         */
+        var ms = moment.duration(moment.utc(moment(moment(), "DD/MM/YYYY HH:mm:ss").diff(moment(lastAnalysis, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss"));
+        if (ms == 0 || (ms / 1000 / 60) > Session.betweenAnalysisTime) {
+            console.log("I'm going to analyze");
+            analyzer.analyzeUser(email, token);
+        }
+        else {
+            console.log(" cannot do the analysis");
+        }
     });
 
     /*
@@ -160,11 +169,13 @@ module.exports = function (app, passport) {
     });
 
     /*
-     Force an analysis for email idenfied user (only for admins)
+     Force an analysis for email identified user (only for admins)
      */
     app.get('/forceAnalysis/:email', isAdmin, function (req, res) {
         var email = req.params.email;
-        analyzer.analyzeUser(email);
+        var token = req.user.facebook.token;
+        res.send("Forced analysis started");
+        analyzer.analyzeUser(email, token);
     });
 
 
@@ -298,10 +309,13 @@ module.exports = function (app, passport) {
     }
 
     function isAdmin(req, res, next) {
-        if (typeof req.user === 'undefined' || typeof req.user.local === 'undefined')
-            res.redirect('/');
-        else
+        if (typeof req.user !== 'undefined' && typeof req.user.local !== 'undefined' && typeof req.user.local.email !== 'undefined') {// HE is an admin
+            console.log("He is an admin", req.user.local.email);
             return next();
+        }
+        else {
+            res.redirect('/');
+        }
     }
 
 };
