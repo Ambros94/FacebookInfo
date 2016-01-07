@@ -4,6 +4,7 @@
 "use strict";
 
 var db = require('../app/MongoManager').monk;
+var dbPromise = require('../app/MongoManager').dbPromise;
 var collections = require('../app/MongoManager').collections;
 var Sessions = require('../app/session');
 var query = require('../app/QueryManager');
@@ -211,28 +212,19 @@ var analyzeDatas = function (args) {
                 /*
                  Inserts analysis in the database
                  */
-                let destinationCollection = db.get(destinationCollectionName);
 
-                destinationCollection.findAndModify({
-                    "query": {"email": email},
-                    "update": {
-                        email: email,
-                        analysis: report
-                    },
-                    "upsert": true,
-                    "new": true
-                }, function (err, doc) {
-                    if (err) {
-                        res.send("There was a problem adding the information to the database.");
-                    }
-                    else {
-                        //console.log(doc);
+
+                dbPromise.then(function (db) {
+                    var destinationCollection = db.collection(destinationCollectionName);
+                    return destinationCollection.update({email: email}, {email: email, analysis: report}, {upsert: true}).then(function (res) {
                         console.log("Analysis stored");
-
-                    }
+                    }).catch(function (err) {
+                        console.log("Analysis STORE ERROR",err);
+                    })
+                }).catch(function (err) {
+                    console.error("storeUserFeed :" + err);
+                    reject(err);
                 });
-
-
 
             }).catch(function (err) {
                 console.error(err);
