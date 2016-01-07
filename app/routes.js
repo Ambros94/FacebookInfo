@@ -1,8 +1,11 @@
 "use strict";
-var fb = require('../facebook/crawler');
-var db = require('./QueryManager');
 var analyzer = require('../facebook/analyzer');
 var Session = require('./session');
+var collections = require('./MongoManager.js').collections;
+var monk = require('./MongoManager.js').monk;
+var query = require('./QueryManager.js');
+var moment = require('moment');
+
 
 module.exports = function (app, passport) {
 
@@ -17,15 +20,13 @@ module.exports = function (app, passport) {
     /*
      User profile (MAIN PAGE)
      */
-
     app.get('/profile', isLoggedIn, function (req, res) {
-
         /*
          Check if the authenticated user has accepted terms & conditions
          */
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            res.render('profile.ejs', {
+            res.render('admin.ejs', {
                 user: req.user
             });
         }
@@ -40,7 +41,9 @@ module.exports = function (app, passport) {
     /////////////////////////////////////////////
 
     app.get('/admin', isAdmin, function (req, res) {
-        res.render('admin.ejs', {});
+        res.render('control-panel.ejs', {
+            user: req.user
+        });
     });
 
     /////////////////////////////////////////////
@@ -61,7 +64,6 @@ module.exports = function (app, passport) {
      */
     app.get('/terms_accepted', function (req, res) {
         Session.acceptTerms(req.user.facebook.email);
-        console.log(Session.hasAcceptedTerms(req.user.facebook.email));
         res.redirect('/profile');
     });
 
@@ -88,10 +90,52 @@ module.exports = function (app, passport) {
         var state = Session.getState(email);
         res.send({state});
     });
+    /*
+     Clear email identified user data
+     */
+    app.get('/clearUser/:email', isLoggedIn, function (req, res) {
+        /*
+         * Params mapping on local variables
+         */
+        var email = req.params.email;
+        query.clearUser(email);
+        console.log("Data cleared {" + email + "}");
+        res.send({email});
+    });
 
     /////////////////////////////////////////////
     ///////////////// Analysis //////////////////
     /////////////////////////////////////////////
+
+    /*
+     Return users data
+     */
+    app.get('/userStats', function (req, res) {
+        var userArray = [];
+        //Todo, far fare al modulo delle query
+        /*
+         Using monk because fires a success event on query complete
+         */
+        var users = monk.get(collections.users);
+        users.find({}, {stream: true})
+            .each(function (user) {
+                if (typeof user.facebook !== 'undefined') {
+                    /*
+                     [id , name , email , lastAnalysis , analysisCount , button , button];
+                     */
+                    let email = user.facebook.email;
+                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear']);
+                }
+            })
+            .error(function (err) {
+                res.send(err);
+            })
+            .success(function () {
+                res.send({data: userArray});
+
+            });
+
+    });
 
     /*
      Analyze email idenfied user, if necessary (defined by policy)
@@ -101,12 +145,20 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
+        var token = req.user.facebook.token;
         res.send({email});
-        if (Session.lastAnalysis() - new Date() > 10) {
-            //TODO Fare analisi
-            Session.analysisCompleted(email);
+        var lastAnalysis = Session.lastAnalysis(email);
+        /*
+         Delta , expressed in ms, between last analysis and now
+         */
+        var ms = moment.duration(moment.utc(moment(moment(), "DD/MM/YYYY HH:mm:ss").diff(moment(lastAnalysis, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss"));
+        if (ms == 0 || (ms / 1000 / 60) > Session.betweenAnalysisTime) {
+            console.log("I'm going to analyze");
+            analyzer.analyzeUser(email, token);
         }
-        //TODO CHECK IF THE ANALYSIS HAS TO BE DONE AND THEN REDIRECT TO THE RIGHT PAGE
+        else {
+            console.log(" cannot do the analysis");
+        }
     });
 
     /*
@@ -114,6 +166,16 @@ module.exports = function (app, passport) {
      */
     app.get('/analyzeUser', isLoggedIn, function (req, res) {
         res.redirect('/analyzeUser/' + req.user.facebook.email);
+    });
+
+    /*
+     Force an analysis for email identified user (only for admins)
+     */
+    app.get('/forceAnalysis/:email', isAdmin, function (req, res) {
+        var email = req.params.email;
+        var token = req.user.facebook.token;
+        res.send("Forced analysis started");
+        analyzer.analyzeUser(email, token);
     });
 
 
@@ -247,10 +309,13 @@ module.exports = function (app, passport) {
     }
 
     function isAdmin(req, res, next) {
-        if (typeof req.user.local.email === 'undefined')
-            res.redirect('/');
-        else
+        if (typeof req.user !== 'undefined' && typeof req.user.local !== 'undefined' && typeof req.user.local.email !== 'undefined') {// HE is an admin
+            console.log("He is an admin", req.user.local.email);
             return next();
+        }
+        else {
+            res.redirect('/');
+        }
     }
 
 };
