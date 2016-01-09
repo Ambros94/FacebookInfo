@@ -6,15 +6,24 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <style>
         body {
+            min-width: 800px;
             padding-top: 80px;
+        }
+        h1{
+            color: steelblue!important;
+            font-size: 12rem!important;
+        }
+        .buttonContainer{
+            display: inline;
+            float: left;
+            margin-left: 23%
         }
     </style>
 </head>
 <body>
 <div class="container">
-
     <div class="jumbotron text-center">
-        <h1><span class="fa fa-lock"></span> Stalk.com</h1>
+        <img src="images/logo.png" alt=""><h1>Stalk.com</h1>
 
         <!-- Message -->
         <% if (typeof message !== 'undefined' && message.length > 0) { %>
@@ -22,13 +31,17 @@
         <% } %>
 
         <!-- Login "Form" -->
+        <div class="buttonContainer">
         <p>Login as user:</p>
         <a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Login with Facebook</a>
+        </div>
         <p style="margin-top:15px">Login as admin:</p>
         <a href="/admin/login" class="btn btn-default"><span class="fa fa-unlock-alt"></span> Local Login</a>
+
     </div>
 
 
 </div>
 </body>
 </html>
+

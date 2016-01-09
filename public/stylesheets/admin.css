@@ -338,31 +338,14 @@ Page structure
     margin-bottom: 25px;
 }
 
-.navContainer{
-    background-color: white;
-    margin-left: 20%;
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 0px;
-    width: 60%;
-    height:40px;
-    min-width: 800px;
-    position: fixed;
-    top:65px;
-    border-left: solid 1px rgb(55, 76, 140);
-    border-right: solid 1px rgb(55, 76, 140);
-}
-
-.nav-wrapper{
-    z-index: 100;
-}
-
 .nav {
     position: fixed;
-    width: 800px;
     height: 40px;
     top: 65px;
-    margin-left: 6%;
+    margin-left: 27%;
+    background-color: white;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .nav-pills > li > a {

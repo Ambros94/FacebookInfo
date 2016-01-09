@@ -40,6 +40,12 @@ $(function () {
         }
     })
 
+    //deal with settings button on top screen
+    $('[data-toggle="popover"]').popover({
+        placement: 'left'
+    });
+
+
     //deal with friends like count table on home page
     drawFriendsTable();
 
@@ -68,6 +74,7 @@ function drawFriendsTable() {
     $.ajax({
         url: "/getBestFriendTable", success: function (result) {
             for (var i = 0; i < result.data.length; i++) {
+                console.log(result)
                 $(".friendLikesCount").append("<tr><td>" + result.data[i].name + "</td><td>" + result.data[i].count + "</td></tr>")
             }
         }
@@ -91,7 +98,7 @@ function drawWordCloud() {
             }
 
             var escapeWords = [];
-            
+
             var final = [];
             for (i = 0; i < escapeWords.length; i++) {
                 for (j = 0; j < words.length; j++) {

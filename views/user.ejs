@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/admin.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
@@ -21,7 +21,7 @@
     <div class="nav-wrapper">
         <img class="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="logo">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a> <i class="material-icons">settings</i></a></li>
+            <li><a> <i data-toggle="popover" data-placement="left" title="Popover title" data-content="Nome: <%=user.facebook.name%>\n" class="material-icons">settings</i></a></li>
             <li><a id="reload"> <i class="material-icons">replay</i></a></li>
             <li><a href="/logout"><i class="material-icons inline rotate">open_in_browser</i><span
                             class="inline">Logout</span></a></li>

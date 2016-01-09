@@ -39,12 +39,11 @@ module.exports = function (app, passport) {
                     res.send(err);
                 })
                 .success(function () {
-                    res.render('admin.ejs', {
+                    res.render('user.ejs', {
                         user: req.user,
                         data: analysisResult
                     });
                 });
-
 
 
         }
@@ -55,22 +54,23 @@ module.exports = function (app, passport) {
     });
 
 
-
     /////////////////////////////////////////////
     /////////////// Admin Pages /////////////////
     /////////////////////////////////////////////
 
-    app.get('/admin', isAdmin, function (req, res) {
+    app.get('/admin', isLoggedIn, function (req, res) {
         res.render('control-panel.ejs', {
             user: req.user
         });
     });
 
     app.get('/test', function (req, res) {
-        res.render('admin.ejs', {
+        res.render('user.ejs', {
             user: req
         });
     });
+
+
 
     /////////////////////////////////////////////
     /////////// Terms and conditions ////////////
@@ -130,7 +130,7 @@ module.exports = function (app, passport) {
     });
 
     /*
-    Get updated wordsCloud data
+     Get updated wordsCloud data
      */
     app.get('/wordsCloud', isLoggedIn, function (req, res) {
         var analysisResult;
@@ -145,7 +145,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: {}});
+                    res.send({data: [{word: '', count: 0}]});
                 })
                 .success(function () {
                     res.send({
@@ -153,7 +153,6 @@ module.exports = function (app, passport) {
                     });
                 });
         }
-
         else {
             res.redirect('/login/terms');
         }
@@ -169,10 +168,11 @@ module.exports = function (app, passport) {
                     //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
                         analysisResult = item.analysis.periodGroupedLikes;
+                        console.log(analysisResult)
                     }
                 })
                 .error(function () {
-                    res.send({data: {}});
+                    res.send({data: { '': 0}});
                 })
                 .success(function () {
                     res.send({
@@ -198,7 +198,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: {}});
+                    res.send({data: [{id:"",name: "", count: 0}]});
                 })
                 .success(function () {
                     res.send({
@@ -315,7 +315,7 @@ module.exports = function (app, passport) {
      */
     app.get('/logout', function (req, res) {
         req.logout();
-        res.render('index.ejs',{message: "Logged out successfully"});
+        res.render('index.ejs', {message: "Logged out successfully"});
     });
 
     /*
