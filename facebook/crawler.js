@@ -16,6 +16,8 @@ var graphRecursiveRequests = function (requestText, mainResolve, mainReject, res
             console.error(err);
             mainReject(err);
         }
+        console.log("Errore ", err);
+        console.log("Risposta ", response);
         addPosts(response, results);
 
         if (response.paging && response.paging.next) {//A tail request exists
@@ -26,7 +28,6 @@ var graphRecursiveRequests = function (requestText, mainResolve, mainReject, res
         }
     });
 };
-
 var addPosts = function (response, posts) {
     response.data.forEach(function (post) {
         posts[post.id] = post;
@@ -49,7 +50,7 @@ var graphRecursiveLikeRequests = function (requestText, mainResolve, mainReject,
             console.error(err, requestText);
             mainReject(err);
         }
-        addLikes(likes,response);
+        addLikes(likes, response);
         if (response.paging && response.paging.next) {//A tail request exists
             var nextRequest = response.paging.next;
             graphRecursiveRequests(nextRequest, mainResolve, mainReject, likes);

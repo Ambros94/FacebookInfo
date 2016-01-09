@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="stylesheets/main.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -13,12 +15,6 @@
 
 </head>
 <body>
-<!--
-<div id="blackBackground" onclick="closePic()">
-    <img id="profilePic" class="showPic" src="" alt="">
-    <img id="bestPic" class="showPic" src="" alt="profile picture">
-</div>
--->
 <nav class="headerSettings">
     <img class="profilePic"
          src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
@@ -26,80 +22,134 @@
         <img class="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="logo">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a> <i class="material-icons">settings</i></a></li>
-            <li><a> <i class="material-icons">replay</i></a></li>
+            <li><a id="reload"> <i class="material-icons">replay</i></a></li>
             <li><a href="login"><i class="material-icons inline rotate">open_in_browser</i><span
                             class="inline">Logout</span></a></li>
         </ul>
     </div>
 </nav>
+<div class="navContainer">
+    <ul class="nav nav-pills">
+        <li id="personaInfo" class="active"><a data-toggle="pill" href="#home">Personal Info</a></li>
+        <li id="wordCloud"><a data-toggle="pill" href="#menu0">Words Analysis</a></li>
+        <li id="feedAnalysis"><a data-toggle="pill" href="#menu1">Feeds Analysis</a></li>
+        <li id="loadedPhotos"><a data-toggle="pill" href="#menu2">Loaded Photos Analysis</a></li>
+        <li id="taggedPhotos"><a data-toggle="pill" href="#menu3">Tagged Photos Analysis</a></li>
+    </ul>
+</div>
 <div class="containerMain">
     <div class="leftMain"></div>
     <div class="centerMain">
-        <div class="frame">
-            <div class="statsContainer">
-                <img class="bestPicture materialboxed" data-caption="Best Picture"
-                     src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
-                <div class="personalStats">
-                    <div class="section">
-                        <h5>Name</h5>
-                        <p>Marzio Stampanoni</p>
+        <div class="tab-content">
+            <div id="home" class="tab-pane fade in active">
+                <div class="statsContainer">
+                    <img class="bestPicture"
+                         src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                    <div class="backgroundOpacity">
+                        <img class="fullscreen"
+                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
                     </div>
-                    <div class="divider"></div>
-                    <div class="section">
-                        <h5>Total posts number</h5>
-                        <p>120 posts</p>
+                    <div class="personalStats">
+                        <div class="section">
+                            <h5>Name</h5>
+                            <p><%= user.facebook.name %></p>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h5>Total posts number</h5>
+                            <p>120</p>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h5>Total likes number</h5>
+                            <p><%= data.likesCount %></p>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="section">
+                            <h5>Best Friend</h5>
+                            <p><%= data.likesByPerson[0].name %> with <%= data.likesByPerson[0].count %> likes</p>
+                        </div>
+                        <div class="divider"></div>
                     </div>
-                    <div class="divider"></div>
-                    <div class="section">
-                        <h5>Total likes number</h5>
-                        <p>340 Likes</p>
+                </div>
+                <div class="podiumContainer">
+                    <div id="secondPic" class="podiumPicContainers">
+                        <img class="podiumPic"
+                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
                     </div>
-                    <div class="divider"></div>
-                    <div class="section">
-                        <h5>Best friend</h5>
-                        <p>Tua madre</p>
+                    <div id="firstPic" class="podiumPicContainers">
+                        <img class="podiumPic"
+                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
                     </div>
-                    <div class="divider"></div>
-
+                    <div id="thirdPic" class="podiumPicContainers">
+                        <img class="podiumPic"
+                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                    </div>
+                    <div class="podium" id="second">2</div>
+                    <div class="podium" id="first">1</div>
+                    <div class="podium" id="third">3</div>
+                    <div class="podiumLabel"><%= data.likesByPerson[1].name %></div>
+                    <div class="podiumLabel"><%= data.likesByPerson[0].name %></div>
+                    <div class="podiumLabel"><%= data.likesByPerson[2].name %></div>
+                </div>
+                <div class="friendTable">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="friendLikesCount">
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="wordCloudContainer"></div>
-            <div class="graphContainer">
-                <div class="column">
-                    <div class="portlet">
-                        <div class="portlet-header">Feeds</div>
-                        <div class="portlet-content">
-                            <div class="placeholder" id="graph1"></div>
-                        </div>
-                    </div>
-                    <div class="portlet">
-                        <div class="portlet-header">News</div>
-                        <div class="portlet-content">
-                            <div class="placeholder" id="graph2"></div>
-                        </div>
-                    </div>
-                    <div class="portlet">
-                        <div class="portlet-header">News</div>
-                        <div class="portlet-content">
-                            <div class="placeholder" id="graph3"></div>
-                        </div>
-                    </div>
+            <div id="menu0" class="tab-pane fade">
+                <div class="wordCloudContainer">
+                </div>
+                <div class="wordsTable">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Words</th>
+                            <th>Number of Occurencies</th>
+                        </tr>
+                        </thead>
+                        <tbody class="wordsCount">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="menu1" class="tab-pane fade">
+                <div class="graphContainer">
+                    <svg class="chart"></svg>
+                </div>
+            </div>
+            <div id="menu2" class="tab-pane fade">
+                <div class="graphContainer">
+                    <svg class="chart"></svg>
+                </div>
+            </div>
+            <div id="menu3" class="tab-pane fade">
+                <div class="graphContainer">
+                    <svg class="chart"></svg>
                 </div>
             </div>
         </div>
     </div>
     <div class="rightMain"></div>
 </div>
+<!--
 <footer class="footer">
     &copyitr0
 </footer>
-<script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/js/materialize.min.js"></script>
-<script src="lib/flot/jquery.flot.js"></script>
-<script src="lib/flot/jquery.flot.resize.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 <script src="lib/d3/d3.layout.cloud.js"></script>
 <script src="javascript/main.js"></script>
 </body>

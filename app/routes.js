@@ -21,20 +21,40 @@ module.exports = function (app, passport) {
      User profile (MAIN PAGE)
      */
     app.get('/profile', isLoggedIn, function (req, res) {
+        var analysisResult;
         /*
          Check if the authenticated user has accepted terms & conditions
          */
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            res.render('admin.ejs', {
-                user: req.user
-            });
+            var analysis = monk.get(collections.userUploadedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis;
+                    }
+                })
+                .error(function (err) {
+                    res.send(err);
+                })
+                .success(function () {
+                    res.render('admin.ejs', {
+                        user: req.user,
+                        data: analysisResult
+                    });
+                });
+
+
+
         }
         else {
             res.redirect('/login/terms');
         }
 
     });
+
+
 
     /////////////////////////////////////////////
     /////////////// Admin Pages /////////////////
@@ -43,6 +63,12 @@ module.exports = function (app, passport) {
     app.get('/admin', isAdmin, function (req, res) {
         res.render('control-panel.ejs', {
             user: req.user
+        });
+    });
+
+    app.get('/test', function (req, res) {
+        res.render('admin.ejs', {
+            user: req
         });
     });
 
@@ -102,6 +128,88 @@ module.exports = function (app, passport) {
         console.log("Data cleared {" + email + "}");
         res.send({email});
     });
+
+    /*
+    Get updated wordsCloud data
+     */
+    app.get('/wordsCloud', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userUploadedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis.usedWords;
+                    }
+                })
+                .error(function (err) {
+                    res.send(err);
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
+
+    app.get('/getPlotData', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userUploadedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis.periodGroupedLikes;
+                    }
+                })
+                .error(function (err) {
+                    res.send(err);
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
+
+    app.get('/getBestFriendTable', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userUploadedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis.likesByPerson;
+                    }
+                })
+                .error(function (err) {
+                    res.send(err);
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
+
 
     /////////////////////////////////////////////
     ///////////////// Analysis //////////////////
