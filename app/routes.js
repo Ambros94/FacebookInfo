@@ -167,7 +167,6 @@ module.exports = function (app, passport) {
                     //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
                         analysisResult = item.analysis.periodGroupedLikes;
-                        console.log(analysisResult)
                     }
                 })
                 .error(function () {
@@ -220,7 +219,6 @@ module.exports = function (app, passport) {
      */
     app.get('/userStats', function (req, res) {
         var userArray = [];
-        //Todo, far fare al modulo delle query
         /*
          Using monk because fires a success event on query complete
          */
@@ -253,7 +251,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBABZAlPsOVlcWwZBfE0YKopzZBazKxC3Rhf3oRZBobx9qoEe9lVgdfZAjHs1yjTPWB0RPyvRZAw7Y5BZBmcEGdGApvxbgyFrdFDoxup0V42dltmEkjNhCzl6FUBkpqwPvlfbG0zZA6IKOgNvr6iqCGI2qXT5RkdPTIxh8ai90SV0IAliayZBsxI9ZC5SZBJXeYJKcQZDZD";
+        var token = "CAACEdEose0cBACavs0PS5ZCrUjst9J69LqTPN8a8daUFdbMRiCP1p47TH4zieJRu53zwaA0pVLcWfhXcy3S6dnZA36e21EJB4C0Cm5gANRdyyx4NCvPR8lgoZAMce1smyWKXBEClk9mItRfOtggppt9zfdX6IV2491j9RTtofUT6jIrTt7yEP2KGBN0pOwRviQtcT7hEwZDZD";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*

@@ -35,7 +35,8 @@ module.exports = {
         userTagged: 'userTagged',
         userPostAnalysis: 'userPostAnalysis',
         userTaggedAnalysis: 'userTaggedAnalysis',
-        userUploadedAnalysis: 'userUploadedAnalysis'
+        userUploadedAnalysis: 'userUploadedAnalysis',
+        userCompleteAnalysis:'userTotalAnalysis'
     }
 };
 

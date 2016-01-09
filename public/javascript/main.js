@@ -3,7 +3,10 @@ $(function () {
     // redraw wordCloud
     $("#wordCloud").click(function () {
         drawWordCloud();
-    })
+    });
+    $('#friendTable').on("click","tr", function () {
+       alert($(this).text());
+    });
 
     drawGraph(".chart");
 

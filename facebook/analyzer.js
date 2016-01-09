@@ -12,6 +12,16 @@ var query = require('../app/QueryManager');
 var _ = require('underscore');
 var fb = require('./crawler');
 
+class AnalysisReport {
+    constructor() {
+        var likesCount;
+        var bestElement;
+        var periodGroupedLikes;
+        var likesByPerson;
+        var usedWords;
+        var hourGroupedLikes;
+    }
+}
 var groupByMonthYear = function (item) {
     return item.created_time.substring(0, 7);
 };
@@ -46,36 +56,205 @@ var importantWords = function (words, limit) {
     return wordsArray.slice(0, limit);
 };
 var analyzeUploadedPhotos = function (email) {
-    analyzeData({
+    return analyzeData({
         email: email,
         sourceCollection: collections.userUploaded,
         destinationCollection: collections.userUploadedAnalysis
     })
 };
 var analyzeTaggedPhotos = function (email) {
-    analyzeData({
+    return analyzeData({
         email: email,
         sourceCollection: collections.userTagged,
         destinationCollection: collections.userTaggedAnalysis
     })
 };
 var analyzePosts = function (email) {
-    analyzeData({
+    return analyzeData({
         email: email,
         sourceCollection: collections.userPost,
         destinationCollection: collections.userPostAnalysis
     })
 };
-class AnalysisReport {
-    constructor() {
-        var likesCount;
-        var bestElement;
-        var periodGroupedLikes;
-        var likesByPerson;
-        var usedWords;
-        var hourGroupedLikes;
+
+var wordComparator = function (a, b) {
+    return a.word === b.word;
+};
+var likerComparator = function (a, b) {
+    return a.name === b.name;
+};
+
+var contains = function (array, element, comparator) {
+    for (var i = 0; i < array.length; i++) {
+        var e = array[i];
+        if (comparator(e, element) === true) {
+            return i;
+        }
     }
-}
+
+    return -1;
+};
+
+var computeTotalAnalysis = function (email) {
+    let report = new AnalysisReport();
+    /**
+     * Tagged Photos
+     */
+
+    let sourceCollection = db.get(collections.userTaggedAnalysis);
+    return sourceCollection.findOne({email: email}).then(function (taggedReport) {
+        report = taggedReport.analysis;
+        sourceCollection = db.get(collections.userUploadedAnalysis);
+        return sourceCollection.findOne({email: email});
+    }).then(function (uploadedReport) {
+        /**
+         *  Uploaded photos
+         */
+        uploadedReport = uploadedReport.analysis;
+        /*
+         LikesCount
+         */
+        report.likesCount += uploadedReport.likesCount;
+        /*
+         Merge userWords
+         */
+        var i;
+        uploadedReport.usedWords.forEach(function (word) {
+            i = contains(report.usedWords, word, wordComparator);
+            if (i === -1) // Word non present in the report
+                report.usedWords.push(word);
+            else
+                report.usedWords[i].count += word.count;
+        });
+        /*
+         Best Element
+         */
+        if (uploadedReport.bestElement.likesCount > report.bestElement.likesCount)
+            report.bestElement = uploadedReport.bestElement;
+        /*
+         Likes by person
+         */
+        var i;
+        uploadedReport.likesByPerson.forEach(function (liker) {
+            i = contains(report.likesByPerson, liker, likerComparator);
+            if (i === -1) // Word non present in the report
+                report.likesByPerson.push(liker);
+            else {
+                report.likesByPerson[i].count += liker.count;
+
+            }
+        });
+
+        /*
+         Period grouped likes
+         */
+        let keys = Object.keys(uploadedReport.periodGroupedLikes);
+        for (let i = 0; i < keys.length; i++) {
+            let key;
+            if (typeof report.periodGroupedLikes[key = keys[i]] === 'undefined')
+                report.periodGroupedLikes[key] = uploadedReport.periodGroupedLikes[key];
+            else {
+                report.periodGroupedLikes[key] += uploadedReport.periodGroupedLikes[key];
+            }
+        }
+        /*
+         Hour grouped likes
+         */
+        keys = Object.keys(uploadedReport.hourGroupedLikes);
+        for (let i = 0; i < keys.length; i++) {
+            let key;
+            if (typeof report.hourGroupedLikes[key = keys[i]] === 'undefined')
+                report.hourGroupedLikes[key] = uploadedReport.hourGroupedLikes[key];
+            else {
+                report.hourGroupedLikes[key] += uploadedReport.hourGroupedLikes[key];
+            }
+        }
+
+        sourceCollection = db.get(collections.userPostAnalysis);
+        return sourceCollection.findOne({email: email});
+    }).then(function (feedReport) {
+        /**
+         Feed
+         */
+        feedReport = feedReport.analysis;
+        /*
+         LikesCount
+         */
+        report.likesCount += feedReport.likesCount;
+        /*
+         Merge userWords
+         */
+        var i;
+        feedReport.usedWords.forEach(function (word) {
+            if ((i = contains(report.usedWords, word, wordComparator)) === -1) // Word non present in the report
+                report.usedWords.push(word);
+            else {
+                report.usedWords[i].count += word.count;
+            }
+        });
+        /*
+         Best Element
+         */
+        if (feedReport.bestElement.likesCount > report.bestElement.likesCount)
+            report.bestElement = feedReport.bestElement;
+        /*
+         Likes by person
+         */
+        var i;
+        feedReport.likesByPerson.forEach(function (liker) {
+            if ((i = contains(report.likesByPerson, liker, likerComparator)) === -1) // Word non present in the report
+                report.likesByPerson.push(liker);
+            else {
+                report.likesByPerson[i].count += liker.count;
+
+            }
+        });
+        /*
+         Period grouped likes
+         */
+        let keys = Object.keys(feedReport.periodGroupedLikes);
+        for (let i = 0; i < keys.length; i++) {
+            let key;
+            if (typeof report.periodGroupedLikes[key = keys[i]] === 'undefined')
+                report.periodGroupedLikes[key] = feedReport.periodGroupedLikes[key];
+            else {
+                report.periodGroupedLikes[key] += feedReport.periodGroupedLikes[key];
+            }
+        }
+        /*
+         Hour grouped likes
+         */
+        keys = Object.keys(feedReport.hourGroupedLikes);
+        for (let i = 0; i < keys.length; i++) {
+            let key;
+            if (typeof report.hourGroupedLikes[key = keys[i]] === 'undefined')
+                report.hourGroupedLikes[key] = feedReport.hourGroupedLikes[key];
+            else {
+                report.hourGroupedLikes[key] += feedReport.hourGroupedLikes[key];
+            }
+        }
+        return dbPromise;
+    }).then(function (db) {
+        /*
+         Sort the report
+         */
+        report.likesByPerson = report.likesByPerson.sort(function (a, b) {
+            return b.count - a.count;
+        });
+        report.usedWords = importantWords(report.usedWords, 50);
+        /*
+         Store the report
+         */
+        var destinationCollection = db.collection(collections.userCompleteAnalysis);
+        return destinationCollection.update({email: email}, {
+            email: email,
+            analysis: report
+        }, {upsert: true});
+    });
+
+
+};
+
 
 var analyzeData = function (args) {
     if (!(args && args.email && args.sourceCollection && args.destinationCollection)) {
@@ -263,24 +442,16 @@ var analyzeData = function (args) {
                     groupedByHour[key] = likesInPeriod;
                 }
                 report.hourGroupedLikes = groupedByHour;
-            }).then(function () {
+                return dbPromise;
+            }).then(function (db) {
                 /*
                  Inserts analysis in the database
                  */
-                dbPromise.then(function (db) {
-                    var destinationCollection = db.collection(destinationCollectionName);
-                    return destinationCollection.update({email: email}, {
-                        email: email,
-                        analysis: report
-                    }, {upsert: true}).then(function () {
-                        console.log("Analysis stored");
-                    }).catch(function (err) {
-                        console.log("Analysis STORE ERROR", err);
-                    })
-                }).catch(function (err) {
-                    console.error("storeUserFeed :" + err);
-                    reject(err);
-                });
+                var destinationCollection = db.collection(destinationCollectionName);
+                return destinationCollection.update({email: email}, {
+                    email: email,
+                    analysis: report
+                }, {upsert: true});
 
             }).catch(function (err) {
                 console.error(err);
@@ -290,7 +461,6 @@ var analyzeData = function (args) {
         }
     });
 };
-
 
 var analyzeUser = function (email, token) {
     Sessions.updateState(email, "No analysis");
@@ -348,7 +518,12 @@ var analyzeUser = function (email, token) {
         /*
          Uploaded photo analysis
          */
-        analyzeUploadedPhotos(email);
+        return analyzeUploadedPhotos(email);
+    }).then(function () {
+        console.log("Uploaded photo analyzed");
+        Sessions.updateState(email, "Computing the final analysis");
+        return computeTotalAnalysis(email);
+    }).then(function () {
         Sessions.updateState(email, "Analysis completed");
         Sessions.analysisCompleted(email);
     }).catch(function (err) {
