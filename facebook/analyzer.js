@@ -45,7 +45,27 @@ var importantWords = function (words, limit) {
     });
     return wordsArray.slice(0, limit);
 };
-
+var analyzeUploadedPhotos = function (email) {
+    analyzeData({
+        email: email,
+        sourceCollection: collections.userUploaded,
+        destinationCollection: collections.userUploadedAnalysis
+    })
+};
+var analyzeTaggedPhotos = function (email) {
+    analyzeData({
+        email: email,
+        sourceCollection: collections.userTagged,
+        destinationCollection: collections.userTaggedAnalysis
+    })
+};
+var analyzePosts = function (email) {
+    analyzeData({
+        email: email,
+        sourceCollection: collections.userPost,
+        destinationCollection: collections.userPostAnalysis
+    })
+};
 class AnalysisReport {
     constructor() {
         var likesCount;
@@ -57,8 +77,7 @@ class AnalysisReport {
     }
 }
 
-
-var analyzeDatas = function (args) {
+var analyzeData = function (args) {
     if (!(args && args.email && args.sourceCollection && args.destinationCollection)) {
         console.log("Parametri sbagliati");
         return null;
@@ -76,7 +95,7 @@ var analyzeDatas = function (args) {
             console.log(err);
         } else {
             /**************************************
-             Calculate total likes on the feed
+             Calculate total likes
              Find the most successful post
              ***************************************/
             const report = new AnalysisReport();
@@ -85,7 +104,17 @@ var analyzeDatas = function (args) {
              */
             var likesPromise = [];
             var photos = [];
-
+            var likesByPersonArray = [];
+            /*
+             Utility init
+             */
+            var totalLikes = 0,
+                bestPost = {likesCount: -1, post: -1};
+            /*
+             Collect promises results
+             */
+            var likesByPerson = {};
+            var likerPromises = [];
 
             var userWords = [];
 
@@ -111,29 +140,22 @@ var analyzeDatas = function (args) {
             /*
              Waits for every promise, compute statistics
              */
+            /*******************************************************************
+             DOWNLOAD ALL LIKES, NOT ONLY FIRST 25 and LAUNCH LikerDataPromises
+             *******************************************************************/
             Promise.all(likesPromise).then(function (results) {
-                /*
-                 Utility init
-                 */
-                var totalLikes = 0,
-                    bestPost = {likesCount: -1, post: -1};
-                /*
-                 Collect promises results
-                 */
-                var likesByPerson = {};
-
                 results.forEach(function (likesArray, index) {
-                    let likesCount = Object.keys(likesArray).length;
                     /*
                      Calculate likes by person
                      */
                     for (var i in likesArray) {
                         let likerName = likesArray[i].name.replace('.', '');
-                        let likerId = likesArray[i].id;
-                        if (typeof likesByPerson[likerId] === 'undefined') {
-                            likesByPerson[likerId] = {name: likerName, count: 0};
+                        let likeId = likesArray[i].id;
+                        if (typeof likesByPerson[likerName] === 'undefined') {
+                            likerPromises.push(fb.getLikerDataAsync(likeId));
+                            likesByPerson[likerName] = {name: likerName, count: 0};
                         }
-                        likesByPerson[likerId].count++;
+                        likesByPerson[likerName].count++;
                     }
                     /*
                      Substitute facebook first page likes with all likes
@@ -142,6 +164,7 @@ var analyzeDatas = function (args) {
                     /*
                      Increments total likes counter
                      */
+                    let likesCount = Object.keys(likesArray).length;
                     totalLikes += likesCount;
                     /*
                      Find the most successful post
@@ -151,20 +174,53 @@ var analyzeDatas = function (args) {
                         bestPost.post = photos[index];
                     }
                 });
+                return Promise.all(likerPromises);
+
+
+            }).then(function (likerData) {
+                /************************
+                 DOWNLOAD ALL LikersData and Start Best Liker Photos download
+                 ************************/
+
+                likerData.forEach(function (likerData) {
+                    let likerName = likerData.name.replace('.', '');
+                    if (typeof likesByPerson[likerName] === 'undefined')
+                        likesByPerson[likerName] = {};
+                    likesByPerson[likerName].profileLink = likerData.link;
+                });
+
                 /*
                  Convert likesByPersonObj in likesByPersonArray
                  */
-                var likesByPersonArray = [];
                 let keys = Object.keys(likesByPerson);
                 for (let i = 0; i < keys.length; i++) {
                     let key = keys[i];
-                    likesByPersonArray.push({id: key, name: likesByPerson[key].name, count: likesByPerson[key].count});
+                    likesByPersonArray.push({
+                        id: key,
+                        name: likesByPerson[key].name,
+                        count: likesByPerson[key].count,
+                        profileLink: likesByPerson[key].profileLink
+                    });
                 }
                 /*
-                Sort likesByPersonArray by likesCount
+                 Sort likesByPersonArray by likesCount
                  */
                 likesByPersonArray = likesByPersonArray.sort(function (a, b) {
                     return b.count - a.count;
+                });
+                /*
+                 Downloads first 5 likes person photos
+                 */
+                var profilePhotoPromises = [];
+                for (var i = 0; i < 5; i++) {
+                    profilePhotoPromises.push(fb.getProfilePhoto(likesByPersonArray[i].profileLink));
+                }
+                return Promise.all(profilePhotoPromises);
+
+
+            }).then(function (profilePhotoArray) {
+                profilePhotoArray.forEach(function (profilePhoto, index) {
+                    likesByPersonArray[index].profilePhoto = profilePhoto;
                 });
                 /*
                  Store results in the report
@@ -172,7 +228,6 @@ var analyzeDatas = function (args) {
                 report.likesByPerson = likesByPersonArray;
                 report.bestElement = bestPost;
                 report.likesCount = totalLikes;
-                return report;
             }).then(function () {
                 /*
                  Group posts by period
@@ -212,14 +267,15 @@ var analyzeDatas = function (args) {
                 /*
                  Inserts analysis in the database
                  */
-
-
                 dbPromise.then(function (db) {
                     var destinationCollection = db.collection(destinationCollectionName);
-                    return destinationCollection.update({email: email}, {email: email, analysis: report}, {upsert: true}).then(function (res) {
+                    return destinationCollection.update({email: email}, {
+                        email: email,
+                        analysis: report
+                    }, {upsert: true}).then(function () {
                         console.log("Analysis stored");
                     }).catch(function (err) {
-                        console.log("Analysis STORE ERROR",err);
+                        console.log("Analysis STORE ERROR", err);
                     })
                 }).catch(function (err) {
                     console.error("storeUserFeed :" + err);
@@ -229,98 +285,76 @@ var analyzeDatas = function (args) {
             }).catch(function (err) {
                 console.error(err);
             });
+
+
         }
     });
-
-
 };
 
-var analyzeUploadedPhotos = function (email) {
-    analyzeDatas({
-        email: email,
-        sourceCollection: collections.userUploaded,
-        destinationCollection: collections.userUploadedAnalysis
-    })
-};
-var analyzeTaggedPhotos = function (email) {
-    analyzeDatas({
-        email: email,
-        sourceCollection: collections.userTagged,
-        destinationCollection: collections.userTaggedAnalysis
-    })
-};
-var analyzePosts = function (email) {
-    analyzeDatas({
-        email: email,
-        sourceCollection: collections.userPost,
-        destinationCollection: collections.userPostAnalysis
-    })
-};
 
 var analyzeUser = function (email, token) {
     Sessions.updateState(email, "No analysis");
-    if (token) {
-        fb.init(token);
-        Sessions.updateState(email, "Post downloading");
-        fb.getPosts().then(function (result) {
-            /*
-             Store the feed
-             */
-            return query.storeUserFeed(email, result);
-        }).then(function (res) {
-            //console.log("Store result :",res);
-            Sessions.updateState(email, "Uploaded photos downlading");
-            /*
-             Get uploaded photos
-             */
-            return fb.getPhotos('uploaded');
-        }).catch(function (err) {
-            //console.log("Error during photo downloading", err);
-        }).then(function (res) {
-            //console.log("Downloaded photos",res);
-
-            /*
-             Store uploaded photos
-             */
-            return query.storeUserUploadedPhotos(email, res);
-        }).then(function (res) {
-            //console.log("store result",res);
-            Sessions.updateState(email, "Tagged photos downloading");
-            /*
-             Get tagged photos
-             */
-            return fb.getPhotos('tagged');
-        }).then(function (res) {
-            //console.log(res);
-            /*
-             Store tagged photos
-             */
-            return query.storeUserTaggedPhotos(email, res)
-        }).then(function (res) {
-            //console.log(res);
-            Sessions.updateState(email, "Looking at your posts");
-            /*
-             Feed analysis
-             */
-            return analyzePosts(email);
-        }).then(function () {
-            Sessions.updateState(email, "Looking at your photos");
-            /*
-             Tagged photos analysis
-             */
-            return analyzeTaggedPhotos(email);
-        }).then(function () {
-            /*
-             Uploaded photo analysis
-             */
-            analyzeUploadedPhotos(email);
-            Sessions.updateState(email, "Analysis completed");
-            Sessions.analysisCompleted(email);
-        }).catch(function (err) {
-            Sessions.updateState(email, "Cannot analyze, try later");
-            console.log("Error during downloading or analiyis", err);
-        });
-    }
+    fb.init(token);
+    Sessions.updateState(email, "Post downloading");
+    fb.getPosts().then(function (result) {
+        /*
+         Store the feed
+         */
+        return query.storeUserFeed(email, result);
+    }).then(function (res) {
+        //console.log("Store result :",res);
+        Sessions.updateState(email, "Uploaded photos downloading");
+        /*
+         Get uploaded photos
+         */
+        return fb.getPhotos('uploaded');
+    }).catch(function (err) {
+        //console.log("Error during photo downloading", err);
+    }).then(function (res) {
+        //console.log("Downloaded photos",res);
+        /*
+         Store uploaded photos
+         */
+        return query.storeUserUploadedPhotos(email, res);
+    }).then(function (res) {
+        //console.log("store result",res);
+        Sessions.updateState(email, "Tagged photos downloading");
+        /*
+         Get tagged photos
+         */
+        return fb.getPhotos('tagged');
+    }).then(function (res) {
+        //console.log(res);
+        /*
+         Store tagged photos
+         */
+        return query.storeUserTaggedPhotos(email, res)
+    }).then(function (res) {
+        //console.log(res);
+        Sessions.updateState(email, "Looking at your posts");
+        /*
+         Feed analysis
+         */
+        return analyzePosts(email);
+    }).then(function () {
+        console.log("Post analyzed");
+        Sessions.updateState(email, "Looking at your photos");
+        /*
+         Tagged photos analysis
+         */
+        return analyzeTaggedPhotos(email);
+    }).then(function () {
+        console.log("Tagged photos analyzed");
+        /*
+         Uploaded photo analysis
+         */
+        analyzeUploadedPhotos(email);
+        Sessions.updateState(email, "Analysis completed");
+        Sessions.analysisCompleted(email);
+    }).catch(function (err) {
+        Sessions.updateState(email, "Cannot analyze, try later");
+        console.log("Error during downloading or analysis", err);
+    });
 };
 
 
@@ -330,4 +364,5 @@ module.exports = {
     analyzePosts,
     analyzeUser
 };
+
 

@@ -50,7 +50,6 @@ module.exports = function (app, passport) {
         else {
             res.redirect('/login/terms');
         }
-
     });
 
 
@@ -254,7 +253,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = req.user.facebook.token;
+        var token = "CAACEdEose0cBABZAlPsOVlcWwZBfE0YKopzZBazKxC3Rhf3oRZBobx9qoEe9lVgdfZAjHs1yjTPWB0RPyvRZAw7Y5BZBmcEGdGApvxbgyFrdFDoxup0V42dltmEkjNhCzl6FUBkpqwPvlfbG0zZA6IKOgNvr6iqCGI2qXT5RkdPTIxh8ai90SV0IAliayZBsxI9ZC5SZBJXeYJKcQZDZD";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*

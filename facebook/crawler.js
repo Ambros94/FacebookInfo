@@ -16,10 +16,7 @@ var graphRecursiveRequests = function (requestText, mainResolve, mainReject, res
             console.error(err);
             mainReject(err);
         }
-        console.log("Errore ", err);
-        console.log("Risposta ", response);
         addPosts(response, results);
-
         if (response.paging && response.paging.next) {//A tail request exists
             var nextRequest = response.paging.next;
             graphRecursiveRequests(nextRequest, mainResolve, mainReject, results);
@@ -33,20 +30,20 @@ var addPosts = function (response, posts) {
         posts[post.id] = post;
     });
 };
-var getLikes = function (post) {
+var getLikes = function (posts) {
     return new Promise(function (resolve, reject) {
         var likes = [];
-        post.likes.data.forEach(function (item) {
+        posts.likes.data.forEach(function (item) {
             likes.push(item);
         });
-        graphRecursiveLikeRequests(post.likes.paging.next, resolve, reject, likes);
+        graphRecursiveLikeRequests(posts.likes.paging.next, resolve, reject, likes);
     });
 };
 
 var graphRecursiveLikeRequests = function (requestText, mainResolve, mainReject, likes) {
 
     graph.get(requestText, function (err, response) {
-        if (err) {// Someting in the GraphApi request has gone wrong
+        if (err) {// Something in the GraphApi request has gone wrong
             console.error(err, requestText);
             mainReject(err);
         }
@@ -110,22 +107,6 @@ module.exports = {
         return p;
     },
 
-
-    getFirstPosts: function () {
-        var requestText = "/me/feed?limit=1";
-        var p = new Promise(function (resolve, reject) {
-            var posts = {};
-            graph.get(requestText, function (err, response) {
-                if (err) {// Something in the GraphApi request has gone wrong
-                    console.error(err);
-                    reject(err);
-                }
-                addPosts(response, posts);// Store the posts in the result array
-                resolve(posts);
-            });
-        });
-        return p;
-    },
     /*
      Returnes likes for a given post
      */
@@ -137,5 +118,31 @@ module.exports = {
             return getLikes(post);
         }
         return post.likes.data;
+    },
+    /*
+     Get Likers data
+     */
+    getLikerDataAsync: function (likeId, token) {
+        return new Promise(function (mainResolve, mainReject) {
+            graph.get(likeId, function (err, response) {
+                if (err) {
+                    console.error(err);
+                    mainReject(err);
+                }
+                mainResolve(response);
+            });
+        });
+    },
+    getProfilePhoto: function (profileLink) {
+        return new Promise(function (mainResolve, mainReject) {
+            let profileId = profileLink.substring(44, profileLink.length - 1);
+            graph.get(profileId + "/picture?type=large", function (err, response) {
+                if (err) {
+                    console.error(err);
+                    mainReject(err);
+                }
+                mainResolve(response.location);
+            });
+        });
     }
 };
