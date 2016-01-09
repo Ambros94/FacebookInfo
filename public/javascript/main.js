@@ -91,7 +91,7 @@ function drawWordCloud() {
             }
 
             var escapeWords = [];
-
+            
             var final = [];
             for (i = 0; i < escapeWords.length; i++) {
                 for (j = 0; j < words.length; j++) {

@@ -144,8 +144,8 @@ module.exports = function (app, passport) {
                         analysisResult = item.analysis.usedWords;
                     }
                 })
-                .error(function (err) {
-                    res.send(err);
+                .error(function () {
+                    res.send({data: {}});
                 })
                 .success(function () {
                     res.send({
@@ -171,8 +171,8 @@ module.exports = function (app, passport) {
                         analysisResult = item.analysis.periodGroupedLikes;
                     }
                 })
-                .error(function (err) {
-                    res.send(err);
+                .error(function () {
+                    res.send({data: {}});
                 })
                 .success(function () {
                     res.send({
@@ -197,8 +197,8 @@ module.exports = function (app, passport) {
                         analysisResult = item.analysis.likesByPerson;
                     }
                 })
-                .error(function (err) {
-                    res.send(err);
+                .error(function () {
+                    res.send({data: {}});
                 })
                 .success(function () {
                     res.send({
