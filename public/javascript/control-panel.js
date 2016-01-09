@@ -14,15 +14,16 @@ $(document).ready(function () {
                 // this case `data: 0`.
                 "render": function (data, type, row) {
                     if (data === row[6])
-                        return '<button  type="button" class="btn btn-warning" email="' + row[2] + '">data</button>';
+                        return '<button  type="button" class="btn btn-warning" email="' + row[2] + '">' + data + '</button>';
                     else
-                        return '<button  type="button" class="btn btn-primary" email="' + row[2] + '">data</button>';
+                        return '<button  type="button" class="btn btn-primary" email="' + row[2] + '">' + data + '</button>';
 
                 },
                 "targets": [5, 6]
             }
         ]
     });
+
     /*
      Force user analysis
      */
@@ -38,6 +39,7 @@ $(document).ready(function () {
             })
 
     });
+
     /*
      Clear button
      */

@@ -5,16 +5,27 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
     <style>
-        body         { padding-top:80px; }
+        body {
+            padding-top: 80px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
     <div class="jumbotron text-center">
-        <h1><span class="fa fa-lock"></span> Node Authentication</h1>
-        <p>Login:</p>
+        <h1><span class="fa fa-lock"></span> Stalk.com</h1>
+
+        <!-- Message -->
+        <% if (typeof message !== 'undefined' && message.length > 0) { %>
+        <div class="alert alert-danger"><%= message %></div>
+        <% } %>
+
+        <!-- Login "Form" -->
+        <p>Login as user:</p>
         <a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Login with Facebook</a>
+        <p style="margin-top:15px">Login as admin:</p>
+        <a href="/admin/login" class="btn btn-default"><span class="fa fa-unlock-alt"></span> Local Login</a>
     </div>
 
 

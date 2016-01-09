@@ -26,7 +26,7 @@ var Sessions = {
         if (typeof sessions[email] === 'undefined')
             sessions[email] = {};
         if (typeof sessions[email].count === 'undefined')
-            sessions[email].count = 0;
+            sessions[email].count = 1;
         sessions[email].count++;
         return sessions[email].lastUpdate = moment();
     },
@@ -34,12 +34,12 @@ var Sessions = {
         if (typeof sessions[email] === 'undefined')
             sessions[email] = {};
         if (typeof sessions[email].count === 'undefined')
-            return 0;
+            return 1;
         return sessions[email].count;
     },
     lastAnalysis: function (email) {
         if (typeof sessions[email] === 'undefined')
-            return "04/09/2013 15:00:00";
+            return moment();
         return sessions[email].lastUpdate;
     },
     acceptTerms: function (email) {

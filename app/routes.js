@@ -262,6 +262,7 @@ module.exports = function (app, passport) {
          */
         var ms = moment.duration(moment.utc(moment(moment(), "DD/MM/YYYY HH:mm:ss").diff(moment(lastAnalysis, "DD/MM/YYYY HH:mm:ss"))).format("HH:mm:ss"));
         if (ms == 0 || (ms / 1000 / 60) > Session.betweenAnalysisTime) {
+            console.log(email, token);
             console.log("I'm going to analyze");
             analyzer.analyzeUser(email, token);
         }
@@ -314,7 +315,7 @@ module.exports = function (app, passport) {
      */
     app.get('/logout', function (req, res) {
         req.logout();
-        res.redirect('/');
+        res.render('index.ejs',{message: "Logged out successfully"});
     });
 
     /*
@@ -336,7 +337,7 @@ module.exports = function (app, passport) {
     /*
      Facebook login (send to facebook to do the authentication)
      */
-    app.get('/auth/facebook', passport.authenticate('facebook', {scope: 'email'}));
+    app.get('/auth/facebook', passport.authenticate('facebook', {scope: ['email', 'user_about_me', 'user_photos', 'user_friends', 'user_likes', 'user_posts']}));
 
     /*
      Handles facebook callback
@@ -419,7 +420,6 @@ module.exports = function (app, passport) {
 
     function isAdmin(req, res, next) {
         if (typeof req.user !== 'undefined' && typeof req.user.local !== 'undefined' && typeof req.user.local.email !== 'undefined') {// HE is an admin
-            console.log("He is an admin", req.user.local.email);
             return next();
         }
         else {
