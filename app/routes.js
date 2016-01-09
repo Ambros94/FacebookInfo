@@ -153,7 +153,7 @@ module.exports = function (app, passport) {
                     });
                 });
         }
-        
+
         else {
             res.redirect('/login/terms');
         }
