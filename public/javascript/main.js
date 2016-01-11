@@ -49,11 +49,20 @@ $(function () {
 
 })
 
+function clamp(min, max, value) {
+    if (value < min) {
+        return min;
+    } else if (value > max) {
+        return max;
+    } else {
+        return value;
+    }
+}
 
 function home() {
     $.ajax({
         url: "/overall", success: function (result) {
-            $("#totalLikeCount").html("Total likes count: "+result.data.analysis.likesCount);
+            $("#totalLikeCount").html("Total likes count: " + result.data.analysis.likesCount);
             for (key in result.data.analysis.periodGroupedLikes) {
                 $(".totalGrouped").append("<tr><td>" + key + "</td><td>" + result.data.analysis.periodGroupedLikes[key] + "</td></tr>")
             }
@@ -103,7 +112,7 @@ function whoLikesYouAnalysis() {
 function getFeedAnalysis() {
     $.ajax({
         url: "/getFeedsAnalysisData", success: function (result) {
-            $("#feedLikeCount").html("Feed likes count: "+result.data.likesCount)
+            $("#feedLikeCount").html("Feed likes count: " + result.data.likesCount)
             for (key in result.data.periodGroupedLikes) {
                 $(".feedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
@@ -117,7 +126,7 @@ function getFeedAnalysis() {
 function getUploadedAnalysis() {
     $.ajax({
         url: "/getUploadedAnalysisData", success: function (result) {
-            $("#loadedLikeCount").html("Uploaded photos likes count: "+result.data.likesCount)
+            $("#loadedLikeCount").html("Uploaded photos likes count: " + result.data.likesCount)
             for (key in result.data.periodGroupedLikes) {
                 $(".loadedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
@@ -131,7 +140,7 @@ function getUploadedAnalysis() {
 function getTaggedAnalysis() {
     $.ajax({
         url: "/getTaggedAnalysisData", success: function (result) {
-            $("#taggedLikeCount").html("Tagged photos likes count: "+result.data.likesCount)
+            $("#taggedLikeCount").html("Tagged photos likes count: " + result.data.likesCount)
             for (key in result.data.periodGroupedLikes) {
                 $(".taggedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
@@ -151,7 +160,8 @@ function drawWordCloud() {
             //create two array with the data collected from the ajax call
             for (var i = 0; i < result.data.length; i++) {
                 words.push(result.data[i].word);
-                wordsWeight.push(result.data[i].count);
+                console.log(clamp(0, 10, result.data[i].count));
+                wordsWeight.push(clamp(0, 10, result.data[i].count));
             }
 
             //by adding string to the array below [escapeWords] thei will be trimmed from the result cloud
