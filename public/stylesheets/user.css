@@ -113,7 +113,7 @@ Personal Stats
 
 .bestPicture {
     float: left;
-    margin-top: 50px;
+    margin-top: 100px;
     margin-left: 50px;
     width: 30%;
     border: solid 3px rgb(55, 76, 140);
@@ -124,19 +124,22 @@ Personal Stats
     padding-left: 20px;
     padding-right: 20px;
     float: left;
-    margin-top: 50px;
+    margin-top: 80px;
     margin-left: 50px;
     width: 50%;
     height: 400px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
 }
 
 .podiumContainer {
     width: 750px;
     margin: auto;
+    margin-top: 60px;
+    height: 550px;
+}
 
-    height: 200px;
+.bestFriendsTitle{
+    text-align: center;
+    padding-bottom: 30px;
 }
 
 .podium {
@@ -201,8 +204,8 @@ Personal Stats
     height: 50px;
 }
 
-.friendTable {
-    margin-top: 250px;
+#friendTable {
+    margin-top: 30px;
     margin-left: 25px;
     margin-right: 25px;
     margin-bottom: 25px;
@@ -311,6 +314,7 @@ Page structure
 }
 
 .fullscreen {
+    width:700px;
     position: fixed;
     top: 50%;
     left: 50%;
@@ -343,7 +347,7 @@ Page structure
     height: 40px;
     top: 65px;
     margin-left: 27%;
-    background-color: white;
+    background-color: rgba(255,255,255,0.9);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 }

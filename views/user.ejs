@@ -2,7 +2,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="stylesheets/admin.css">
+    <link rel="stylesheet" type="text/css" href="stylesheets/user.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
@@ -29,15 +29,13 @@
         </ul>
     </div>
 </nav>
-<div class="navContainer">
     <ul class="nav nav-pills">
-        <li id="personaInfo" class="active"><a data-toggle="pill" href="#home">Personal Info</a></li>
+        <li id="personaInfo" class="active"><a data-toggle="pill" href="#home">Who Likes You</a></li>
         <li id="wordCloud"><a data-toggle="pill" href="#menu0">Words Analysis</a></li>
         <li id="feedAnalysis"><a data-toggle="pill" href="#menu1">Feeds Analysis</a></li>
         <li id="loadedPhotos"><a data-toggle="pill" href="#menu2">Loaded Photos Analysis</a></li>
         <li id="taggedPhotos"><a data-toggle="pill" href="#menu3">Tagged Photos Analysis</a></li>
     </ul>
-</div>
 <div class="containerMain">
     <div class="leftMain"></div>
     <div class="centerMain">
@@ -56,42 +54,26 @@
                             <p><%= user.facebook.name %></p>
                         </div>
                         <div class="divider"></div>
-                        <div class="section">
-                            <h5>Total posts number</h5>
-                            <p>120</p>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="section">
-                            <h5>Total likes number</h5>
-                            <p><%= data.likesCount %></p>
-                        </div>
-                        <div class="divider"></div>
-                        <div class="section">
-                            <h5>Best Friend</h5>
-                            <p><%= data.likesByPerson[0].name %> with <%= data.likesByPerson[0].count %> likes</p>
-                        </div>
-                        <div class="divider"></div>
                     </div>
                 </div>
+                <div class="divider"></div>
                 <div class="podiumContainer">
+                    <h3 class="bestFriendsTitle">Best Friends</h3>
                     <div id="secondPic" class="podiumPicContainers">
-                        <img class="podiumPic"
-                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                        <img class="podiumPic" src="">
                     </div>
                     <div id="firstPic" class="podiumPicContainers">
-                        <img class="podiumPic"
-                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                        <img class="podiumPic" src="">
                     </div>
                     <div id="thirdPic" class="podiumPicContainers">
-                        <img class="podiumPic"
-                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
+                        <img class="podiumPic" src="">
                     </div>
                     <div class="podium" id="second">2</div>
                     <div class="podium" id="first">1</div>
                     <div class="podium" id="third">3</div>
-                    <div class="podiumLabel"><%= data.likesByPerson[1].name %></div>
-                    <div class="podiumLabel"><%= data.likesByPerson[0].name %></div>
-                    <div class="podiumLabel"><%= data.likesByPerson[2].name %></div>
+                    <div class="podiumLabel"><%= data.analysis.likesByPerson[1].name %></div>
+                    <div class="podiumLabel"><%= data.analysis.likesByPerson[0].name %></div>
+                    <div class="podiumLabel"><%= data.analysis.likesByPerson[2].name %></div>
                 </div>
                 <div id="friendTable">
                     <table class="table table-striped">

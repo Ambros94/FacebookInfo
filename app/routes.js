@@ -27,16 +27,67 @@ module.exports = function (app, passport) {
          */
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            var analysis = monk.get(collections.userUploadedAnalysis);
+            var analysis = monk.get(collections.userCompleteAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
                     //console.log(item.email + "  :  " + req.user.facebook.email)
-                    if (typeof item.analysis !== 'undefined' && item.email == email) {
-                        analysisResult = item.analysis;
+                    if (typeof item !== 'undefined' && item.email == email) {
+                        analysisResult = item;
                     }
                 })
-                .error(function (err) {
-                    res.send(err);
+                .error(function () {
+                    res.send({
+                        data: [{
+                            "_id": '',
+                            "email": "",
+                            "analysis": {
+                                "usedWords": [{"word": ""}],
+                                "likesByPerson": [{
+                                    "id": "",
+                                    "name": "",
+                                    "count": 0,
+                                    "profileLink": "",
+                                    "profilePhoto": ""
+                                }],
+                                "bestElement": {
+                                    "likesCount": 0,
+                                    "post": {
+                                        "id": "",
+                                        "created_time": "",
+                                        "from": {"name": "", "id": ""},
+                                        "height": 0,
+                                        "icon": "",
+                                        "images": [{"height": 0, "source": "", "whidth": 0}],
+                                        "link": "",
+                                        "name": "",
+                                        "picture": "",
+                                        "source": "",
+                                        "updated-time": "",
+                                        "width": 0,
+                                        "tags": {
+                                            data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
+                                            "paging": {"cursor": {"before": "", "after": ""}}
+                                        },
+                                        "comments": {
+                                            "data": [{
+                                                "created_time": "",
+                                                "from": {"name": "", "id": ""},
+                                                "message": "",
+                                                "can_remove": false,
+                                                "like_count": 0,
+                                                "user_like": false,
+                                                "id": ""
+                                            }], "paging": {"cursor": {"before": "", "after": ""}}
+                                        },
+                                        "likes": [{"id": "", "name": ""}]
+                                    }
+                                },
+                                "likesCount": 0,
+                                "periodGroupedLikes": {"2016-01": 0},
+                                "hourGroupedLikes": {"0": 0}
+                            }
+                        }]
+                    });
                 })
                 .success(function () {
                     res.render('user.ejs', {
@@ -68,7 +119,6 @@ module.exports = function (app, passport) {
             user: req
         });
     });
-
 
 
     /////////////////////////////////////////////
@@ -131,14 +181,91 @@ module.exports = function (app, passport) {
     /*
      Get updated wordsCloud data
      */
+
+    app.get('/overall', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userCompleteAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item !== 'undefined' && item.email == email) {
+                        analysisResult = item;
+                    }
+                })
+                .error(function () {
+                    res.send({
+                        data: [{
+                            "_id": '',
+                            "email": "",
+                            "analysis": {
+                                "usedWords": [{"word": ""}],
+                                "likesByPerson": [{
+                                    "id": "",
+                                    "name": "",
+                                    "count": 0,
+                                    "profileLink": "",
+                                    "profilePhoto": ""
+                                }],
+                                "bestElement": {
+                                    "likesCount": 0,
+                                    "post": {
+                                        "id": "",
+                                        "created_time": "",
+                                        "from": {"name": "", "id": ""},
+                                        "height": 0,
+                                        "icon": "",
+                                        "images": [{"height": 0, "source": "", "whidth": 0}],
+                                        "link": "",
+                                        "name": "",
+                                        "picture": "",
+                                        "source": "",
+                                        "updated-time": "",
+                                        "width": 0,
+                                        "tags": {
+                                            data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
+                                            "paging": {"cursor": {"before": "", "after": ""}}
+                                        },
+                                        "comments": {
+                                            "data": [{
+                                                "created_time": "",
+                                                "from": {"name": "", "id": ""},
+                                                "message": "",
+                                                "can_remove": false,
+                                                "like_count": 0,
+                                                "user_like": false,
+                                                "id": ""
+                                            }], "paging": {"cursor": {"before": "", "after": ""}}
+                                        },
+                                        "likes": [{"id": "", "name": ""}]
+                                    }
+                                },
+                                "likesCount": 0,
+                                "periodGroupedLikes": {"2016-01": 0},
+                                "hourGroupedLikes": {"0": 0}
+                            }
+                        }]
+                    });
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
+
     app.get('/wordsCloud', isLoggedIn, function (req, res) {
         var analysisResult;
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            var analysis = monk.get(collections.userUploadedAnalysis);
+            var analysis = monk.get(collections.userCompleteAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
-                    //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
                         analysisResult = item.analysis.usedWords;
                     }
@@ -170,7 +297,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: { '': 0}});
+                    res.send({data: {'': 0}});
                 })
                 .success(function () {
                     res.send({
@@ -196,7 +323,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: [{id:"",name: "", count: 0}]});
+                    res.send({data: [{id: "", name: "", count: 0}]});
                 })
                 .success(function () {
                     res.send({
@@ -251,7 +378,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBACavs0PS5ZCrUjst9J69LqTPN8a8daUFdbMRiCP1p47TH4zieJRu53zwaA0pVLcWfhXcy3S6dnZA36e21EJB4C0Cm5gANRdyyx4NCvPR8lgoZAMce1smyWKXBEClk9mItRfOtggppt9zfdX6IV2491j9RTtofUT6jIrTt7yEP2KGBN0pOwRviQtcT7hEwZDZD";
+        var token = "CAACEdEose0cBANNRHwoLlX3g3doVdnfP7TshfbFxJ9G8jPhACdamU4pAQZALn9OHmedGWMkJ9tD14ZAemeFZCZC0hUuJGFuNBDXsGjI7C2v1XhegvttRZCj7cvV8NPYRe9pLoYnUSZCsVPP7HQOIj9u09ZBAI09fbzUTmkKLN0doBwt45j20pLjl2WrxzcSeN6Et4hCriRxBYthFKptQVAg";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*

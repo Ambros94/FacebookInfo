@@ -1,47 +1,18 @@
 $(function () {
 
+    getCompleteAnalysis();
+
     // redraw wordCloud
     $("#wordCloud").click(function () {
         drawWordCloud();
     });
     $('#friendTable').on("click","tr", function () {
-       alert($(this).text());
+        window.location = ($(this).attr("data-href"))
     });
 
     drawGraph(".chart");
 
-    //deal show full screen images
-    $(".bestPicture").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
 
-    $(".profilePic").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
-
-    $("#firstPic .podiumPic").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
-
-    $("#secondPic .podiumPic").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
-
-    $("#thirdPic .podiumPic").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
-
-    $(".backgroundOpacity").click(function () {
-        if ($(".backgroundOpacity").css("display") == "block") {
-            $(".fullscreen").remove();
-            $(".backgroundOpacity").css("display", "none");
-        }
-    })
 
     //deal with settings button on top screen
     $('[data-toggle="popover"]').popover({
@@ -50,7 +21,6 @@ $(function () {
 
 
     //deal with friends like count table on home page
-    drawFriendsTable();
 
     //deal with realod button, top right of the screen
     $("#reload").click(function () {
@@ -73,17 +43,65 @@ $(function () {
 })
 
 
-function drawFriendsTable() {
+
+function getCompleteAnalysis() {
     $.ajax({
-        url: "/getBestFriendTable", success: function (result) {
-            for (var i = 0; i < result.data.length; i++) {
-                console.log(result)
-                $(".friendLikesCount").append("<tr><td>" + result.data[i].name + "</td><td>" + result.data[i].count + "</td></tr>")
+        url: "/overall", success: function (result) {
+            for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
+                $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
             }
+            $("#firstPic .podiumPic").attr("src", result.data.analysis.likesByPerson[0].profilePhoto);
+            $("#secondPic .podiumPic").attr("src", result.data.analysis.likesByPerson[1].profilePhoto);
+            $("#thirdPic .podiumPic").attr("src", result.data.analysis.likesByPerson[2].profilePhoto);
+
+            //deal show full screen images
+            $(".bestPicture").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
+                $(".backgroundOpacity").css("display", "block");
+            });
+
+            $(".profilePic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
+                $(".backgroundOpacity").css("display", "block");
+            });
+
+            var firstPic = $("#firstPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[0].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+            });
+
+            var secondPic = $("#secondPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[1].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+            });
+
+            $("#thirdPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[2].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+            });
+
+            $(".backgroundOpacity").click(function () {
+                if ($(".backgroundOpacity").css("display") == "block") {
+                    $(".fullscreen").remove();
+                    $(".backgroundOpacity").css("display", "none");
+                }
+            })
+
+            $("#first").attr("href", result.data.analysis.likesByPerson[0].profileLink)
+            $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink)
+            $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink)
+            $("#first").click(function(){
+                window.location = ($(this).attr("href"))
+            })
+            $("#second").click(function(){
+                window.location = ($(this).attr("href"))
+            })
+            $("#third").click(function(){
+                window.location = ($(this).attr("href"))
+            })
+
         }
     })
-
-
 }
 
 function drawBestFriendPic(name) {
