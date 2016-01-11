@@ -78,14 +78,12 @@ var analyzePosts = function (email) {
         destinationCollection: collections.userPostAnalysis
     })
 };
-
 var wordComparator = function (a, b) {
     return a.word === b.word;
 };
 var likerComparator = function (a, b) {
     return a.name === b.name;
 };
-
 var contains = function (array, element, comparator) {
     for (var i = 0; i < array.length; i++) {
         var e = array[i];
@@ -97,7 +95,7 @@ var contains = function (array, element, comparator) {
     return -1;
 };
 
-var computeTotalAnalysis = function (email) {
+var computeTotalAnalysis = function (email,profilePhoto) {
     let report = new AnalysisReport();
     /**
      * Tagged Photos
@@ -253,7 +251,8 @@ var computeTotalAnalysis = function (email) {
         var destinationCollection = db.collection(collections.userCompleteAnalysis);
         return destinationCollection.update({email: email}, {
             email: email,
-            analysis: report
+            analysis: report,
+            profilePhoto:profilePhoto
         }, {upsert: true});
     });
 
@@ -471,7 +470,9 @@ var analyzeUser = function (email, token) {
     Sessions.updateState(email, Sessions.StatesEnum.STARTED);
     fb.init(token);
     Sessions.updateState(email, Sessions.StatesEnum.FEEDDOWNLOAD);
+    var profilePhoto;
     fb.getMyProfilePhoto().then(function (res) {
+        profilePhoto = res;
         return query.storeUserProfilePhoto(email, res);
     }).then(function () {
         return fb.getPosts();
@@ -530,7 +531,7 @@ var analyzeUser = function (email, token) {
     }).then(function () {
         console.log("Uploaded photo analyzed");
         Sessions.updateState(email, Sessions.StatesEnum.TOTALANALYSIS);
-        return computeTotalAnalysis(email);
+        return computeTotalAnalysis(email,profilePhoto);
     }).then(function () {
         Sessions.updateState(email, Sessions.StatesEnum.COMPLETED);
         //After 5 minutes restores the state
