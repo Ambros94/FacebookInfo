@@ -6,6 +6,10 @@ $(function () {
         $(".backgroundOpacity").css("display", "block");
     });
 
+    $("#reload").click(function(){
+        window.location = "/analyzing"
+    })
+
     //open/close popover on settings button, top right corner
     $('[data-toggle="popover"]').popover({
         placement: 'bottom'
@@ -20,9 +24,6 @@ $(function () {
                 break;
             case "wholikesyou":
                 whoLikesYouAnalysis();
-                $('[data-toggle="popover"]').popover({
-                    placement: 'bottom'
-                });
                 break;
             case "wordscloud":
                 drawWordCloud();
@@ -162,11 +163,18 @@ function drawWordCloud() {
                     max = result.data[i].count
             }
 
+            var max = 10;
+            for (var i = 0; i < result.data.length; i++) {
+                if (max < result.data[i].count)
+                    max = result.data[i].count
+            }
+
             //create two array with the data collected from the ajax call
             for (var i = 0; i < result.data.length; i++) {
                 words.push(result.data[i].word);
                 wordsWeight.push(result.data[i].count / max * 8);
             }
+
 
             //by adding string to the array below [escapeWords] thei will be trimmed from the result cloud
             var escapeWords = [];
