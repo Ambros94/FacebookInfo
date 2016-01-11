@@ -284,16 +284,16 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get('/getPlotData', isLoggedIn, function (req, res) {
+    app.get('/getTotalAnalysisData', isLoggedIn, function (req, res) {
         var analysisResult;
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            var analysis = monk.get(collections.userUploadedAnalysis);
+            var analysis = monk.get(collections.userCompleteAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
                     //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
-                        analysisResult = item.analysis.periodGroupedLikes;
+                        analysisResult = item.analysis;
                     }
                 })
                 .error(function () {
@@ -310,20 +310,20 @@ module.exports = function (app, passport) {
         }
     });
 
-    app.get('/getBestFriendTable', isLoggedIn, function (req, res) {
+    app.get('/getFeedsAnalysisData', isLoggedIn, function (req, res) {
         var analysisResult;
         let email = req.user.facebook.email;
         if (Session.hasAcceptedTerms(email)) {
-            var analysis = monk.get(collections.userUploadedAnalysis);
+            var analysis = monk.get(collections.userPostAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
                     //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
-                        analysisResult = item.analysis.likesByPerson;
+                        analysisResult = item.analysis;
                     }
                 })
                 .error(function () {
-                    res.send({data: [{id: "", name: "", count: 0}]});
+                    res.send({data: {'': 0}});
                 })
                 .success(function () {
                     res.send({
@@ -336,6 +336,57 @@ module.exports = function (app, passport) {
         }
     });
 
+    app.get('/getUploadedAnalysisData', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userUploadedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis;
+                    }
+                })
+                .error(function () {
+                    res.send({data: {'': 0}});
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
+
+    app.get('/getTaggedAnalysisData', isLoggedIn, function (req, res) {
+        var analysisResult;
+        let email = req.user.facebook.email;
+        if (Session.hasAcceptedTerms(email)) {
+            var analysis = monk.get(collections.userTaggedAnalysis);
+            analysis.find({}, {stream: true})
+                .each(function (item) {
+                    //console.log(item.email + "  :  " + req.user.facebook.email)
+                    if (typeof item.analysis !== 'undefined' && item.email == email) {
+                        analysisResult = item.analysis;
+                    }
+                })
+                .error(function () {
+                    res.send({data: {'': 0}});
+                })
+                .success(function () {
+                    res.send({
+                        data: analysisResult
+                    });
+                });
+        }
+        else {
+            res.redirect('/login/terms');
+        }
+    });
 
     /////////////////////////////////////////////
     ///////////////// Analysis //////////////////

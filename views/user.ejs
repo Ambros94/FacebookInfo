@@ -22,43 +22,67 @@
     <div class="nav-wrapper">
         <img class="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="logo">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a> <i data-toggle="popover" data-placement="left" title="Popover title" data-content="Nome: <%=user.facebook.name%>\n" class="material-icons">settings</i></a></li>
+            <li><a data-toggle="popover" data-html="true" title="User stats" data-content="Nome: <%= user.facebook.name %><br>Email: <%=user.facebook.email%>" > <i class="material-icons">settings</i></a></li>
             <li><a id="reload"> <i class="material-icons">replay</i></a></li>
             <li><a href="/logout"><i class="material-icons inline rotate">open_in_browser</i><span
                             class="inline">Logout</span></a></li>
         </ul>
     </div>
 </nav>
-    <ul class="nav nav-pills">
-        <li id="personaInfo" class="active"><a data-toggle="pill" href="#home">Who Likes You</a></li>
-        <li id="wordCloud"><a data-toggle="pill" href="#menu0">Words Analysis</a></li>
-        <li id="feedAnalysis"><a data-toggle="pill" href="#menu1">Feeds Analysis</a></li>
-        <li id="loadedPhotos"><a data-toggle="pill" href="#menu2">Loaded Photos Analysis</a></li>
-        <li id="taggedPhotos"><a data-toggle="pill" href="#menu3">Tagged Photos Analysis</a></li>
-    </ul>
+<ul class="nav nav-pills">
+    <li id="total" class="active"><a data-toggle="pill" href="#home">Total Analysis</a></li>
+    <li id="wholikesyou"><a data-toggle="pill" href="#menu0">Who likes you</a></li>
+    <li id="wordscloud"><a data-toggle="pill" href="#menu1">Words Analysis</a></li>
+    <li id="feed"><a data-toggle="pill" href="#menu2">Feeds Analysis</a></li>
+    <li id="loaded"><a data-toggle="pill" href="#menu3">Loaded Photos Analysis</a></li>
+    <li id="tagged"><a data-toggle="pill" href="#menu4">Tagged Photos Analysis</a></li>
+</ul>
+
 <div class="containerMain">
     <div class="leftMain"></div>
     <div class="centerMain">
         <div class="tab-content">
             <div id="home" class="tab-pane fade in active">
-                <div class="statsContainer">
-                    <img class="bestPicture"
-                         src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
-                    <div class="backgroundOpacity">
-                        <img class="fullscreen"
-                             src="https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F">
-                    </div>
-                    <div class="personalStats">
-                        <div class="section">
-                            <h5>Name</h5>
-                            <p><%= user.facebook.name %></p>
-                        </div>
-                        <div class="divider"></div>
-                    </div>
+                <h3 class="tabTitle">Total Analysis</h3>
+                <h5 class="likeCount" id="totalLikeCount">Total likes count: </h5>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Month grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="totalMonthChart chart"></svg>
+                </div>
+                <div class="totalGroupedLikeTableContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="totalGrouped">
+                        </tbody>
+                    </table>
                 </div>
                 <div class="divider"></div>
+                <h5 class="analysisTitle">Hours grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="totalHoursChart chart"></svg>
+                </div>
+                <div class="totalHoursAnalysisContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="totalHours">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="menu0" class="tab-pane fade">
+                <h3 class="tabTitle">Best Friends</h3>
                 <div class="podiumContainer">
-                    <h3 class="bestFriendsTitle">Best Friends</h3>
                     <div id="secondPic" class="podiumPicContainers">
                         <img class="podiumPic" src="">
                     </div>
@@ -75,7 +99,7 @@
                     <div class="podiumLabel"><%= data.analysis.likesByPerson[0].name %></div>
                     <div class="podiumLabel"><%= data.analysis.likesByPerson[2].name %></div>
                 </div>
-                <div id="friendTable">
+                <div class="friendTable">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -88,7 +112,8 @@
                     </table>
                 </div>
             </div>
-            <div id="menu0" class="tab-pane fade">
+            <div id="menu1" class="tab-pane fade">
+                <h3 class="tabTitle">Words Analysis</h3>
                 <div class="wordCloudContainer">
                 </div>
                 <div class="wordsTable">
@@ -104,19 +129,118 @@
                     </table>
                 </div>
             </div>
-            <div id="menu1" class="tab-pane fade">
-                <div class="graphContainer">
-                    <svg class="chart"></svg>
-                </div>
-            </div>
             <div id="menu2" class="tab-pane fade">
+                <h3 class="tabTitle">Feed Analysis</h3>
+                <h5 class="likeCount" id="feedLikeCount">Feed likes count: </h5>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Month grouped Analysis</h5>
                 <div class="graphContainer">
-                    <svg class="chart"></svg>
+                    <svg class="feedMonthChart chart"></svg>
+                </div>
+                <div class="feedGroupedLikeTableContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="feedGrouped">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Hours grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="feedHoursChart chart"></svg>
+                </div>
+                <div class="feedHoursAnalysisContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="feedHours">
+                        </tbody>
+                    </table>
                 </div>
             </div>
             <div id="menu3" class="tab-pane fade">
+                <h3 class="tabTitle">Loaded Photos Analysis</h3>
+                <h5 class="likeCount" id="loadedLikeCount">Loaded photos likes count: </h5>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Month grouped Analysis</h5>
                 <div class="graphContainer">
-                    <svg class="chart"></svg>
+                    <svg class="loadedMonthChart chart"></svg>
+                </div>
+                <div class="loadedGroupedLikeTableContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="loadedGrouped">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Hours grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="loadedHoursChart chart"></svg>
+                </div>
+                <div class="loadedHoursAnalysisContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="loadedHours">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div id="menu4" class="tab-pane fade">
+                <h3 class="tabTitle">Tagged Photos Analysis</h3>
+                <h5 class="likeCount" id="taggedLikeCount">Tagged photos likes count: </h5>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Month grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="taggedMonthChart chart"></svg>
+                </div>
+                <div class="taggedGroupedLikeTableContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="taggedGrouped">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="divider"></div>
+                <h5 class="analysisTitle">Hours grouped Analysis</h5>
+                <div class="graphContainer">
+                    <svg class="taggedHoursChart chart"></svg>
+                </div>
+                <div class="taggedHoursAnalysisContainer">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Number of Likes</th>
+                        </tr>
+                        </thead>
+                        <tbody class="taggedHours">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

@@ -39,6 +39,24 @@ var stringFilter = function (string) {
     return array;
 };
 
+var importantWords = function (words, limit) {
+    limit = typeof limit !== 'undefined' ? limit : 10;
+    words = _.groupBy(words, function (item) {
+        return item;
+    });
+    let keys = Object.keys(words),
+        wordsArray = [];
+
+    for (let i = 0; i < keys.length; i++) {
+        let key = keys[i];
+        wordsArray.push({word: key, count: words[key].length});
+    }
+    wordsArray = wordsArray.sort(function (a, b) {
+        return b.count - a.count;
+    });
+    return wordsArray.slice(0, limit);
+};
+
 var analyzeUploadedPhotos = function (email) {
     return analyzeData({
         email: email,
@@ -527,5 +545,3 @@ module.exports = {
     analyzeUser,
     computeTotalAnalysis
 };
-
-

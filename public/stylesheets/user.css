@@ -106,28 +106,9 @@ i.material-icons, span.inline {
 Personal Stats
 */
 
-.statsContainer {
-    margin-top: 10px;
-    height: 500px;
-}
+.popover{
+    color: black;
 
-.bestPicture {
-    float: left;
-    margin-top: 100px;
-    margin-left: 50px;
-    width: 30%;
-    border: solid 3px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.personalStats {
-    padding-left: 20px;
-    padding-right: 20px;
-    float: left;
-    margin-top: 80px;
-    margin-left: 50px;
-    width: 50%;
-    height: 400px;
 }
 
 .podiumContainer {
@@ -137,12 +118,14 @@ Personal Stats
     height: 550px;
 }
 
-.bestFriendsTitle{
+.tabTitle{
+    margin-top: 75px;
     text-align: center;
     padding-bottom: 30px;
 }
 
 .podium {
+    box-shadow: 3px 3px 3px #888888;
     color: white;;
     font-size: 2rem;
     text-align: center;
@@ -204,7 +187,22 @@ Personal Stats
     height: 50px;
 }
 
-#friendTable {
+.divider{
+    margin-top: 40px;
+    margin-bottom: 40px;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.analysisTitle{
+    margin-left: 25px;
+}
+
+.table{
+    margin-bottom: 0px!important;
+}
+
+.friendTable {
     margin-top: 30px;
     margin-left: 25px;
     margin-right: 25px;
@@ -215,6 +213,78 @@ Personal Stats
 
 .wordsTable {
     margin: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.totalGroupedLikeTableContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.totalHoursAnalysisContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.feedGroupedLikeTableContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.feedHoursAnalysisContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.loadedGroupedLikeTableContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.loadedHoursAnalysisContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.taggedGroupedLikeTableContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.taggedHoursAnalysisContainer{
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
     border: solid 1px rgb(55, 76, 140);
     border-radius: 5px;
 }
@@ -342,11 +412,20 @@ Page structure
     margin-bottom: 25px;
 }
 
+.tip{
+    color:white;
+}
+
+.likeCount{
+    margin-left: 25px;
+    margin-top: 50px;
+}
+
 .nav {
     position: fixed;
     height: 40px;
     top: 65px;
-    margin-left: 27%;
+    margin-left: 22.5%;
     background-color: rgba(255,255,255,0.9);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;

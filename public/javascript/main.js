@@ -1,31 +1,37 @@
 $(function () {
 
     getCompleteAnalysis();
+    getFeedAnalysis();
+    getUploadedAnalysis();
+    getTaggedAnalysis();
 
     // redraw wordCloud
-    $("#wordCloud").click(function () {
+    $("#wordscloud").click(function () {
         drawWordCloud();
     });
-    $('#friendTable').on("click","tr", function () {
+    $('#friendTable').on("click", "tr", function () {
         window.location = ($(this).attr("data-href"))
     });
 
-    drawGraph(".chart");
-
+    drawGraph("/getTotalAnalysisData",".totalMonthChart","periodGroupedLikes", -0.965, -0.9);
+    drawGraph("/getTotalAnalysisData",".totalHoursChart","hourGroupedLikes", -0.915, -1.1);
+    drawGraph("/getFeedsAnalysisData",".feedMonthChart","periodGroupedLikes", -0.965, -0.9);
+    drawGraph("/getFeedsAnalysisData",".feedHoursChart","hourGroupedLikes", -0.915, -1.1);
+    drawGraph("/getUploadedAnalysisData",".loadedMonthChart","periodGroupedLikes", -0.965, -0.9);
+    drawGraph("/getUploadedAnalysisData",".loadedHoursChart","hourGroupedLikes", -0.915, -1.1);
+    drawGraph("/getTaggedAnalysisData",".taggedMonthChart","periodGroupedLikes", -0.965, -0.9);
+    drawGraph("/getTaggedAnalysisData",".taggedHoursChart","hourGroupedLikes", -0.915, -1.1);
 
 
     //deal with settings button on top screen
     $('[data-toggle="popover"]').popover({
-        placement: 'left'
+        placement: 'bottom'
     });
-
-
-    //deal with friends like count table on home page
 
     //deal with realod button, top right of the screen
     $("#reload").click(function () {
         switch ($(".nav-pills li.active").attr("id")) {
-            case "personalInfo":
+            case "total":
                 break;
             case "wordCloud":
                 drawWordCloud();
@@ -40,16 +46,13 @@ $(function () {
                 break;
         }
     })
-})
 
+})
 
 
 function getCompleteAnalysis() {
     $.ajax({
         url: "/overall", success: function (result) {
-            for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
-                $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
-            }
             $("#firstPic .podiumPic").attr("src", result.data.analysis.likesByPerson[0].profilePhoto);
             $("#secondPic .podiumPic").attr("src", result.data.analysis.likesByPerson[1].profilePhoto);
             $("#thirdPic .podiumPic").attr("src", result.data.analysis.likesByPerson[2].profilePhoto);
@@ -66,17 +69,17 @@ function getCompleteAnalysis() {
             });
 
             var firstPic = $("#firstPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[0].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[0].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
             });
 
             var secondPic = $("#secondPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[1].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[1].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
             });
 
             $("#thirdPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[2].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[2].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
             });
 
@@ -90,22 +93,74 @@ function getCompleteAnalysis() {
             $("#first").attr("href", result.data.analysis.likesByPerson[0].profileLink)
             $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink)
             $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink)
-            $("#first").click(function(){
+            $("#first").click(function () {
                 window.location = ($(this).attr("href"))
             })
-            $("#second").click(function(){
+            $("#second").click(function () {
                 window.location = ($(this).attr("href"))
             })
-            $("#third").click(function(){
+            $("#third").click(function () {
                 window.location = ($(this).attr("href"))
             })
+
+            $("#totalLikeCount").append(result.data.analysis.likesCount)
+
+
+            //tables
+            for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
+                $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
+            }
+            for(key in result.data.analysis.periodGroupedLikes){
+                $(".totalGrouped").append("<tr><td>" + key + "</td><td>" + result.data.analysis.periodGroupedLikes[key]+ "</td></tr>")
+            }
+            for(key in result.data.analysis.hourGroupedLikes){
+                $(".totalHours").append("<tr><td>" + key + "</td><td>" + result.data.analysis.hourGroupedLikes[key]+ "</td></tr>")
+            }
 
         }
     })
 }
 
-function drawBestFriendPic(name) {
-    // $("#secondPic .podiumPic").attr("src", TODO );
+function getFeedAnalysis() {
+    $.ajax({
+        url: "/getFeedsAnalysisData", success: function (result) {
+            $("#feedLikeCount").append(result.data.likesCount)
+            for(key in result.data.periodGroupedLikes){
+                $(".feedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            }
+            for(key in result.data.hourGroupedLikes){
+                $(".feedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            }
+        }
+    })
+}
+
+function getUploadedAnalysis() {
+    $.ajax({
+        url: "/getUploadedAnalysisData", success: function (result) {
+            $("#loadedLikeCount").append(result.data.likesCount)
+            for(key in result.data.periodGroupedLikes){
+                $(".loadedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            }
+            for(key in result.data.hourGroupedLikes){
+                $(".loadedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            }
+        }
+    })
+}
+
+function getTaggedAnalysis() {
+    $.ajax({
+        url: "/getTaggedAnalysisData", success: function (result) {
+            $("#taggedLikeCount").append(result.data.likesCount)
+            for(key in result.data.periodGroupedLikes){
+                $(".taggedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            }
+            for(key in result.data.hourGroupedLikes){
+                $(".taggedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            }
+        }
+    })
 }
 
 function drawWordCloud() {
@@ -150,7 +205,7 @@ function drawWordCloud() {
                 })
                 .font("Impact")
                 .fontSize(function (d, i) {
-                    return d.size * wordsWeight[i];
+                    return d.size * (wordsWeight[i] / 2);
                 })
                 .on("end", draw);
 
@@ -191,16 +246,24 @@ function drawWordCloud() {
 
 }
 
-function drawGraph(svgClassName) {
+
+function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
     $.ajax({
-        url: "/getPlotData", success: function (result) {
+        url: route, success: function (result) {
             var month = [];
             var data = [];
-            for (var key in result.data) {
+            for (var key in result.data[tableName]) {
                 month.push(key);
-                data.push(result.data[key])
+                data.push(result.data[tableName][key])
             }
 
+            var monthComplete = month.slice();
+
+            for (i = 0; i < month.length; i++) {
+                if (i > 0 && i < month.length - 1) {
+                    month[i] = "";
+                }
+            }
 
             var margin = {top: 20, right: 40, bottom: 30, left: 40},
                 width = 920 - margin.left - margin.right,
@@ -208,13 +271,13 @@ function drawGraph(svgClassName) {
 
 
             var barWidth = width / data.length;
-
-            var x = d3.scale.ordinal().rangeRoundBands([0, width], -0.3);
+            var x = d3.scale.ordinal().rangeRoundBands([0, width], deltaX);
             var y = d3.scale.linear().range([height, 0]);
 
             var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient("bottom")
+
 
             var yAxis = d3.svg.axis()
                 .scale(y)
@@ -225,8 +288,10 @@ function drawGraph(svgClassName) {
                 .attr('class', 'd3-tip')
                 .offset([-10, 0])
                 .html(function (d) {
-                    return "<strong>Likes count:</strong> <span style='color:white'>" + d + "</span>";
+                    tipMonth = monthComplete[document.elementFromPoint(event.clientX, event.clientY).id]
+                    return "<strong>Likes count:</strong> <span class='tip'>" + d +"</span><br><strong>When: </strong><span>"+tipMonth+"</span>";
                 })
+
 
             x.domain(month.map(function (d) {
                 return d;
@@ -243,14 +308,13 @@ function drawGraph(svgClassName) {
 
             chart.call(tip);
 
-            var bar = chart.selectAll("g")
+            var bar = chart.selectAll("bar")
                 .data(data)
                 .enter().append("g")
                 .attr("transform", function (d, i) {
                     return "translate(" + i * barWidth + ",0)";
-                });
-
-            bar.append("rect")
+                })
+                .append("rect")
                 .attr("y", function (d) {
                     return y(d);
                 })
@@ -259,29 +323,19 @@ function drawGraph(svgClassName) {
                 })
                 .attr("width", barWidth - 1)
                 .attr("class", "bar")
+                .attr("id", function(d,i){
+                    return i;
+                })
                 .on('mouseover', tip.show)
+                //.on("mousemove", function () {
+                //    return tip.style("top",
+                //        (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
+                //})
                 .on('mouseout', tip.hide);
 
-
-            /*
-             bar.append("text")
-             .attr("text-anchor", "middle")
-             .attr("x", barWidth / 2)
-             .attr("x", function (d) {
-             return x(d) + x.rangeBand() / 2;
-             })
-             .attr("y", function (d) {
-             return y(d) + 3;
-             })
-             .attr("dy", "-0.5em")
-             .attr("dx", "1.7em")
-             .text(function (d) {
-             return d;
-             });
-             */
             chart.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
+                .attr("transform", "translate("+deltaY+"," + height + ")")
                 .call(xAxis);
 
             chart.append("g")
@@ -298,5 +352,7 @@ function drawGraph(svgClassName) {
     })
 
 
+
 }
+
 
