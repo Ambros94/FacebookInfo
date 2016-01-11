@@ -61,8 +61,6 @@ function home() {
                     $("#totalBestElement").attr("class", "bestElement");
                     bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.analysis.bestElement.post.from.name+"<br>Message: "+result.data.analysis.bestElement.post.name+"<br>Likes count: "+result.data.analysis.bestElement.likesCount+"</div>")
                 }
-
-
             }
             $("#totalLikeCount").html("Total likes count: " + result.data.analysis.likesCount);
             /*
@@ -179,6 +177,14 @@ function getFeedAnalysis() {
 function getUploadedAnalysis() {
     $.ajax({
         url: "/getUploadedAnalysisData", success: function (result) {
+            bestElementContainer = $("#loadedBestElementContainer");
+            if (bestElementContainer.children().length == 1) {
+                if(result.data.bestElement.post.message === undefined){
+                    bestElementContainer.append("<img src='" + result.data.bestElement.post.images[0].source + "' id='loadedBestElement'>");
+                    $("#loadedBestElement").attr("class", "bestElement");
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
+                }
+            }
             $("#loadedLikeCount").html("Uploaded photos likes count: " + result.data.likesCount);
             var periodGroupedLikesArray = [];
             for (var key in result.data.periodGroupedLikes) {
@@ -215,6 +221,14 @@ function getUploadedAnalysis() {
 function getTaggedAnalysis() {
     $.ajax({
         url: "/getTaggedAnalysisData", success: function (result) {
+            bestElementContainer = $("#taggedBestElementContainer");
+            if (bestElementContainer.children().length == 1) {
+                if(result.data.bestElement.post.message === undefined){
+                    bestElementContainer.append("<img src='" + result.data.bestElement.post.images[0].source + "' id='taggedBestElement'>");
+                    $("#taggedBestElement").attr("class", "bestElement");
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
+                }
+            }
             $("#taggedLikeCount").html("Tagged photos likes count: " + result.data.likesCount);
             var periodGroupedLikesArray = [];
             for (var key in result.data.periodGroupedLikes) {

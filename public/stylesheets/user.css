@@ -143,6 +143,14 @@ Personal Stats
     height: 250px;
 }
 
+#loadedBestElementContainer{
+    height: 300px;
+}
+
+#taggedBestElementContainer{
+    height: 300px;
+}
+
 .podium {
     box-shadow: 3px 3px 3px #888888;
     color: white;;

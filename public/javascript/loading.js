@@ -8,7 +8,6 @@ var loadingRequest = function () {
         url: "/getState",
         dataType: "json",
         success: function (data) {
-            console.log(data);
             var state = data.state;
             if (state === 9) {
                 launchAnalysis();
@@ -18,13 +17,18 @@ var loadingRequest = function () {
                 return;
             }
             if (state === 8) {
-                window.location = "http://localhost:8080/profile";
+                $(".wait").html("<a href='http://localhost:8080/profile' class='btn btn-primary' role='button'>Go to Stalk.com</a>")
+                $(".waitHidden").click(function(){
+                    window.location = 'http://localhost:8080/profile';
+                })
                 return;
             }
-            else
+            else {
+                $(".wait").html("<p>Please Wait..</p>")
                 setTimeout(function () {
                     loadingRequest();
                 }, 2000);
+            }
 
         },
         error: function (err) {
