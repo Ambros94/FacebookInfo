@@ -613,7 +613,7 @@ module.exports = function (app, passport) {
         res.render('connect-local.ejs', {message: req.flash('loginMessage')});
     });
     app.post('/connect/local', passport.authenticate('local-signup', {
-        successRedirect: '/profile', // redirect to the secure profile section
+        successRedirect: '/admin', // redirect to the secure profile section
         failureRedirect: '/connect/local', // redirect back to the signup page if there is an error
         failureFlash: true // allow flash messages
     }));
@@ -648,7 +648,7 @@ module.exports = function (app, passport) {
         user.local.email = undefined;
         user.local.password = undefined;
         user.save(function (err) {
-            res.redirect('/profile');
+            res.redirect('/admin');
         });
     });
 
@@ -659,7 +659,7 @@ module.exports = function (app, passport) {
         var user = req.user;
         user.facebook.token = undefined;
         user.save(function (err) {
-            res.redirect('/profile');
+            res.redirect('/admin');
         });
     });
 

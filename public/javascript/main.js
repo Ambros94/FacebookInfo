@@ -63,11 +63,36 @@ function home() {
     $.ajax({
         url: "/overall", success: function (result) {
             $("#totalLikeCount").html("Total likes count: " + result.data.analysis.likesCount);
-            for (key in result.data.analysis.periodGroupedLikes) {
-                $(".totalGrouped").append("<tr><td>" + key + "</td><td>" + result.data.analysis.periodGroupedLikes[key] + "</td></tr>")
+            /*
+             Convert
+             */
+            var periodGroupedLikesArray = [];
+            for (var key in result.data.analysis.periodGroupedLikes) {
+                periodGroupedLikesArray.push({
+                    month: key,
+                    data: result.data.analysis.periodGroupedLikes[key]
+                });
             }
-            for (key in result.data.analysis.hourGroupedLikes) {
-                $(".totalHours").append("<tr><td>" + key + "</td><td>" + result.data.analysis.hourGroupedLikes[key] + "</td></tr>")
+            periodGroupedLikesArray = periodGroupedLikesArray.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+            var hourGroupedLikes = [];
+            for (var key in result.data.analysis.hourGroupedLikes) {
+                hourGroupedLikes.push({
+                    month: key,
+                    data: result.data.analysis.hourGroupedLikes[key]
+                });
+            }
+            hourGroupedLikes = hourGroupedLikes.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+
+
+            for (var i = 0; i < periodGroupedLikesArray.length; i++) {
+                $(".totalGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
+            }
+            for (var i = 0; i < hourGroupedLikes.length; i++) {
+                $(".totalHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
             drawGraph("/getTotalAnalysisData", ".totalMonthChart", "periodGroupedLikes", -0.965, -0.9);
             drawGraph("/getTotalAnalysisData", ".totalHoursChart", "hourGroupedLikes", -0.915, -1.1);
@@ -112,13 +137,39 @@ function whoLikesYouAnalysis() {
 function getFeedAnalysis() {
     $.ajax({
         url: "/getFeedsAnalysisData", success: function (result) {
-            $("#feedLikeCount").html("Feed likes count: " + result.data.likesCount)
-            for (key in result.data.periodGroupedLikes) {
-                $(".feedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
+            $("#feedLikeCount").html("Feed likes count: " + result.data.likesCount);
+            /*
+             Convert
+             */
+            var periodGroupedLikesArray = [];
+            for (var key in result.data.periodGroupedLikes) {
+                periodGroupedLikesArray.push({
+                    month: key,
+                    data: result.data.periodGroupedLikes[key]
+                });
             }
-            for (key in result.data.hourGroupedLikes) {
-                $(".feedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
+            periodGroupedLikesArray = periodGroupedLikesArray.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+            var hourGroupedLikes = [];
+            for (var key in result.data.hourGroupedLikes) {
+                hourGroupedLikes.push({
+                    month: key,
+                    data: result.data.hourGroupedLikes[key]
+                });
             }
+            hourGroupedLikes = hourGroupedLikes.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+
+
+            for (var i = 0; i < periodGroupedLikesArray.length; i++) {
+                $(".feedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
+            }
+            for (var i = 0; i < hourGroupedLikes.length; i++) {
+                $(".feedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
+            }
+
         }
     })
 }
@@ -126,12 +177,34 @@ function getFeedAnalysis() {
 function getUploadedAnalysis() {
     $.ajax({
         url: "/getUploadedAnalysisData", success: function (result) {
-            $("#loadedLikeCount").html("Uploaded photos likes count: " + result.data.likesCount)
-            for (key in result.data.periodGroupedLikes) {
-                $(".loadedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
+            $("#loadedLikeCount").html("Uploaded photos likes count: " + result.data.likesCount);
+            var periodGroupedLikesArray = [];
+            for (var key in result.data.periodGroupedLikes) {
+                periodGroupedLikesArray.push({
+                    month: key,
+                    data: result.data.periodGroupedLikes[key]
+                });
             }
-            for (key in result.data.hourGroupedLikes) {
-                $(".loadedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
+            periodGroupedLikesArray = periodGroupedLikesArray.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+            var hourGroupedLikes = [];
+            for (var key in result.data.hourGroupedLikes) {
+                hourGroupedLikes.push({
+                    month: key,
+                    data: result.data.hourGroupedLikes[key]
+                });
+            }
+            hourGroupedLikes = hourGroupedLikes.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+
+
+            for (var i = 0; i < periodGroupedLikesArray.length; i++) {
+                $(".loadedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
+            }
+            for (var i = 0; i < hourGroupedLikes.length; i++) {
+                $(".loadedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
         }
     })
@@ -140,12 +213,34 @@ function getUploadedAnalysis() {
 function getTaggedAnalysis() {
     $.ajax({
         url: "/getTaggedAnalysisData", success: function (result) {
-            $("#taggedLikeCount").html("Tagged photos likes count: " + result.data.likesCount)
-            for (key in result.data.periodGroupedLikes) {
-                $(".taggedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
+            $("#taggedLikeCount").html("Tagged photos likes count: " + result.data.likesCount);
+            var periodGroupedLikesArray = [];
+            for (var key in result.data.periodGroupedLikes) {
+                periodGroupedLikesArray.push({
+                    month: key,
+                    data: result.data.periodGroupedLikes[key]
+                });
             }
-            for (key in result.data.hourGroupedLikes) {
-                $(".taggedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
+            periodGroupedLikesArray = periodGroupedLikesArray.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+            var hourGroupedLikes = [];
+            for (var key in result.data.hourGroupedLikes) {
+                hourGroupedLikes.push({
+                    month: key,
+                    data: result.data.hourGroupedLikes[key]
+                });
+            }
+            hourGroupedLikes = hourGroupedLikes.sort(function (a, b) {
+                return (a.month < b.month) ? 1 : -1;
+            });
+
+
+            for (var i = 0; i < periodGroupedLikesArray.length; i++) {
+                $(".taggedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
+            }
+            for (var i = 0; i < hourGroupedLikes.length; i++) {
+                $(".taggedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
         }
     })
@@ -161,11 +256,10 @@ function drawWordCloud() {
                 if (max < result.data[i].count)
                     max = result.data[i].count
             }
-
             //create two array with the data collected from the ajax call
             for (var i = 0; i < result.data.length; i++) {
                 words.push(result.data[i].word);
-                wordsWeight.push(result.data[i].count / max * 8);
+                wordsWeight.push((result.data[i].count / max * 7) + 1);
             }
 
             //by adding string to the array below [escapeWords] thei will be trimmed from the result cloud
@@ -249,12 +343,27 @@ function drawWordCloud() {
 function drawGraph(route, svgClassName, tableName, deltaX, deltaY) {
     $.ajax({
         url: route, success: function (result) {
+
+
+            var monthArray = [];
+            for (var key in result.data[tableName]) {
+                monthArray.push({
+                    month: key,
+                    data: result.data[tableName][key]
+                });
+            }
+            monthArray = monthArray.sort(function (a, b) {
+                return (a.month > b.month) ? 1 : -1;
+            });
+
+
             var month = [];
             var data = [];
-            for (var key in result.data[tableName]) {
-                month.push(key);
-                data.push(result.data[tableName][key])
+            for (var i = 0; i < monthArray.length; i++) {
+                month.push(monthArray[i].month);
+                data.push(monthArray[i].data);
             }
+
 
             var monthComplete = month.slice();
 
