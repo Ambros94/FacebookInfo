@@ -44,6 +44,23 @@ var storeUserUploadedPhotos = function (email, photos) {
         });
     });
 };
+var storeUserProfilePhoto = function (email, photo) {
+    return new Promise(function (resolve, reject) {
+        dbPromise.then(function (db) {// Here i have the database
+            var collection = db.collection(collections.userProfilePhoto);
+            collection.update({email: email}, {email: email, data: photo}, {upsert: true}).then(function (res) {
+                resolve("User profile photo correctly stored");
+                console.log("User profile photo correctly updated");
+            }).catch(function (err) {
+                console.log("Impossible to add user storage", err);
+                reject(err);
+
+            })
+        }).catch(function (err) {
+            console.log("storeUserProfilePhoto :" + err);
+        });
+    });
+};
 
 var storeUserTaggedPhotos = function (email, photos) {
     return new Promise(function (resolve, reject) {
@@ -96,4 +113,4 @@ var clearUser = function (email) {
 
 };
 
-module.exports = {storeUserFeed, storeUserTaggedPhotos, storeUserUploadedPhotos, clearUser};
+module.exports = {storeUserFeed, storeUserTaggedPhotos, storeUserUploadedPhotos, clearUser, storeUserProfilePhoto};

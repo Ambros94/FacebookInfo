@@ -468,23 +468,25 @@ var analyzeData = function (args) {
 };
 
 var analyzeUser = function (email, token) {
-    Sessions.updateState(email, "No analysis");
+    Sessions.updateState(email, Sessions.StatesEnum.STARTED);
     fb.init(token);
-    Sessions.updateState(email, "Post downloading");
-    fb.getPosts().then(function (result) {
+    Sessions.updateState(email, Sessions.StatesEnum.FEEDDOWNLOAD);
+    fb.getMyProfilePhoto().then(function (res) {
+        return query.storeUserProfilePhoto(email, res);
+    }).then(function () {
+        return fb.getPosts();
+    }).then(function (result) {
         /*
          Store the feed
          */
         return query.storeUserFeed(email, result);
     }).then(function (res) {
         //console.log("Store result :",res);
-        Sessions.updateState(email, "Uploaded photos downloading");
+        Sessions.updateState(email, Sessions.StatesEnum.UPLOADEDDOWNLOAD);
         /*
          Get uploaded photos
          */
         return fb.getPhotos('uploaded');
-    }).catch(function (err) {
-        //console.log("Error during photo downloading", err);
     }).then(function (res) {
         //console.log("Downloaded photos",res);
         /*
@@ -493,7 +495,7 @@ var analyzeUser = function (email, token) {
         return query.storeUserUploadedPhotos(email, res);
     }).then(function (res) {
         //console.log("store result",res);
-        Sessions.updateState(email, "Tagged photos downloading");
+        Sessions.updateState(email, Sessions.StatesEnum.TAGGEDDOWNLOAD);
         /*
          Get tagged photos
          */
@@ -506,14 +508,14 @@ var analyzeUser = function (email, token) {
         return query.storeUserTaggedPhotos(email, res)
     }).then(function (res) {
         //console.log(res);
-        Sessions.updateState(email, "Looking at your posts");
+        Sessions.updateState(email, Sessions.StatesEnum.FEEDANALYSIS);
         /*
          Feed analysis
          */
         return analyzePosts(email);
     }).then(function () {
         console.log("Post analyzed");
-        Sessions.updateState(email, "Looking at your photos");
+        Sessions.updateState(email, Sessions.StatesEnum.TAGGEDANALYSIS);
         /*
          Tagged photos analysis
          */
@@ -523,16 +525,21 @@ var analyzeUser = function (email, token) {
         /*
          Uploaded photo analysis
          */
+        Sessions.updateState(email, Sessions.StatesEnum.UPLOADEDANALYSIS);
         return analyzeUploadedPhotos(email);
     }).then(function () {
         console.log("Uploaded photo analyzed");
-        Sessions.updateState(email, "Computing the final analysis");
+        Sessions.updateState(email, Sessions.StatesEnum.TOTALANALYSIS);
         return computeTotalAnalysis(email);
     }).then(function () {
-        Sessions.updateState(email, "Analysis completed");
+        Sessions.updateState(email, Sessions.StatesEnum.COMPLETED);
+        //After 5 minutes restores the state
+        setTimeout(function () {
+            Sessions.updateState(email, Sessions.StatesEnum.NOTHING);
+        }, 5 * 60 * 1000);
         Sessions.analysisCompleted(email);
     }).catch(function (err) {
-        Sessions.updateState(email, "Cannot analyze, try later");
+        Sessions.updateState(email, Sessions.StatesEnum.ERROR);
         console.log("Error during downloading or analysis", err);
     });
 };
@@ -545,3 +552,6 @@ module.exports = {
     analyzeUser,
     computeTotalAnalysis
 };
+
+
+

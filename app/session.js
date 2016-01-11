@@ -9,10 +9,22 @@ var sessions = {};
 var Sessions = {
 
     'betweenAnalysisTime': 5,
-
+    StatesEnum: {
+        STARTED: 0,
+        FEEDDOWNLOAD: 1,
+        UPLOADEDDOWNLOAD: 2,
+        TAGGEDDOWNLOAD: 3,
+        FEEDANALYSIS: 4,
+        UPLOADEDANALYSIS: 5,
+        TAGGEDANALYSIS: 6,
+        TOTALANALYSIS: 7,
+        COMPLETED: 8,
+        NOTHING: 9,
+        ERROR: -1
+    },
     getState: function (email) {
-        if (typeof sessions[email] === 'undefined') {
-            return "No analysis";
+        if (typeof sessions[email] === 'undefined' || typeof sessions[email].state === 'undefined') {
+            return Sessions.StatesEnum.NOTHING;
         }
         else
             return sessions[email].state;
@@ -39,6 +51,8 @@ var Sessions = {
     },
     lastAnalysis: function (email) {
         if (typeof sessions[email] === 'undefined')
+            return moment();
+        if (typeof sessions[email].lastUpdate === 'undefined')
             return moment();
         return sessions[email].lastUpdate;
     },

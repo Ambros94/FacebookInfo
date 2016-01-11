@@ -136,7 +136,18 @@ module.exports = {
     getProfilePhoto: function (profileLink) {
         return new Promise(function (mainResolve, mainReject) {
             let profileId = profileLink.substring(44, profileLink.length - 1);
-            graph.get(profileId + "/picture?type=large", function (err, response) {
+            graph.get(profileId + "/picture?width=500&height=500", function (err, response) {
+                if (err) {
+                    console.error(err);
+                    mainReject(err);
+                }
+                mainResolve(response.location);
+            });
+        });
+    },
+    getMyProfilePhoto: function () {
+        return new Promise(function (mainResolve, mainReject) {
+            graph.get("me/picture?width=500&height=500", function (err, response) {
                 if (err) {
                     console.error(err);
                     mainReject(err);
@@ -145,4 +156,6 @@ module.exports = {
             });
         });
     }
+
+
 };

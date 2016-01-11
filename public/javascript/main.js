@@ -83,9 +83,9 @@ function whoLikesYouAnalysis() {
             $("#secondPic .podiumPic").attr("src", result.data.analysis.likesByPerson[1].profilePhoto);
             $("#thirdPic .podiumPic").attr("src", result.data.analysis.likesByPerson[2].profilePhoto);
 
-            $("#first").attr("href", result.data.analysis.likesByPerson[0].profileLink)
-            $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink)
-            $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink)
+            $("#first").attr("href", result.data.analysis.likesByPerson[0].profileLink);
+            $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink);
+            $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink);
             $("#first").click(function () {
                 window.location = ($(this).attr("href"))
             })
@@ -156,12 +156,16 @@ function drawWordCloud() {
     var wordsWeight = [];
     $.ajax({
         url: "/wordsCloud", success: function (result) {
+            var max = 10;
+            for (var i = 0; i < result.data.length; i++) {
+                if (max < result.data[i].count)
+                    max = result.data[i].count
+            }
 
             //create two array with the data collected from the ajax call
             for (var i = 0; i < result.data.length; i++) {
                 words.push(result.data[i].word);
-                console.log(clamp(0, 10, result.data[i].count));
-                wordsWeight.push(clamp(0, 10, result.data[i].count));
+                wordsWeight.push(result.data[i].count / max * 8);
             }
 
             //by adding string to the array below [escapeWords] thei will be trimmed from the result cloud
