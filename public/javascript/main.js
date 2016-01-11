@@ -6,7 +6,7 @@ $(function () {
         $(".backgroundOpacity").css("display", "block");
     });
 
-    $("#reload").click(function(){
+    $("#reload").click(function () {
         window.location = "/analyzing"
     })
 
@@ -51,19 +51,19 @@ $(function () {
 
 })
 
-function clamp(min, max, value) {
-    if (value < min) {
-        return min;
-    } else if (value > max) {
-        return max;
-    } else {
-        return value;
-    }
-}
-
 function home() {
     $.ajax({
         url: "/overall", success: function (result) {
+            bestElementContainer = $("#totalBestElementContainer");
+            if (bestElementContainer.children().length == 1) {
+                if(result.data.analysis.bestElement.post.message === undefined){
+                    bestElementContainer.append("<img src='" + result.data.analysis.bestElement.post.images[0].source + "' id='totalBestElement'>");
+                    $("#totalBestElement").attr("class", "bestElement");
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.analysis.bestElement.post.from.name+"<br>Message: "+result.data.analysis.bestElement.post.name+"<br>Likes count: "+result.data.analysis.bestElement.likesCount+"</div>")
+                }
+
+
+            }
             $("#totalLikeCount").html("Total likes count: " + result.data.analysis.likesCount);
             /*
              Convert

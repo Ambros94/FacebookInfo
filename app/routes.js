@@ -90,7 +90,6 @@ module.exports = function (app, passport) {
                     });
                 })
                 .success(function () {
-                    console.log(Session.lastAnalysis(email));
                     res.render('user.ejs', {
                         user: req.user,
                         lastAnalysis: Session.lastAnalysis(req.user.facebook.email),
@@ -143,6 +142,7 @@ module.exports = function (app, passport) {
     app.get('/terms_accepted', function (req, res) {
         Session.acceptTerms(req.user.facebook.email);
         res.redirect('/analyzing');
+        //res.redirect('/profile');
     });
 
     /////////////////////////////////////////////

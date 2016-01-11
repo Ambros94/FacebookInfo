@@ -124,6 +124,25 @@ Personal Stats
     padding-bottom: 30px;
 }
 
+.bestElement{
+    margin-top: 25px;
+    margin-left: 25px;
+    width:250px;
+    border: solid 3px rgb(55, 76, 140) !important;
+    border-radius: 5px;
+    float: left;
+}
+
+.bestElementDescription{
+    width: 800px;
+    margin-left: 300px;
+    margin-top: 40px;
+}
+
+#totalBestElementContainer{
+    height: 250px;
+}
+
 .podium {
     box-shadow: 3px 3px 3px #888888;
     color: white;;
