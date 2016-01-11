@@ -1,46 +1,46 @@
 $(function () {
+    home();
 
-    getCompleteAnalysis();
-    getFeedAnalysis();
-    getUploadedAnalysis();
-    getTaggedAnalysis();
-
-    // redraw wordCloud
-    $("#wordscloud").click(function () {
-        drawWordCloud();
-    });
-    $('#friendTable').on("click", "tr", function () {
-        window.location = ($(this).attr("data-href"))
+    $(".profilePic").click(function () {
+        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
+        $(".backgroundOpacity").css("display", "block");
     });
 
-    drawGraph("/getTotalAnalysisData",".totalMonthChart","periodGroupedLikes", -0.965, -0.9);
-    drawGraph("/getTotalAnalysisData",".totalHoursChart","hourGroupedLikes", -0.915, -1.1);
-    drawGraph("/getFeedsAnalysisData",".feedMonthChart","periodGroupedLikes", -0.965, -0.9);
-    drawGraph("/getFeedsAnalysisData",".feedHoursChart","hourGroupedLikes", -0.915, -1.1);
-    drawGraph("/getUploadedAnalysisData",".loadedMonthChart","periodGroupedLikes", -0.965, -0.9);
-    drawGraph("/getUploadedAnalysisData",".loadedHoursChart","hourGroupedLikes", -0.915, -1.1);
-    drawGraph("/getTaggedAnalysisData",".taggedMonthChart","periodGroupedLikes", -0.965, -0.9);
-    drawGraph("/getTaggedAnalysisData",".taggedHoursChart","hourGroupedLikes", -0.915, -1.1);
-
-
-    //deal with settings button on top screen
+    //open/close popover on settings button, top right corner
     $('[data-toggle="popover"]').popover({
         placement: 'bottom'
     });
 
-    //deal with realod button, top right of the screen
-    $("#reload").click(function () {
-        switch ($(".nav-pills li.active").attr("id")) {
+
+    $(".nav").click(function () {
+        activePill = document.elementFromPoint(event.clientX, event.clientY).parentNode.id
+        switch (activePill) {
             case "total":
+                home();
                 break;
-            case "wordCloud":
+            case "wholikesyou":
+                whoLikesYouAnalysis();
+                $('[data-toggle="popover"]').popover({
+                    placement: 'bottom'
+                });
+                break;
+            case "wordscloud":
                 drawWordCloud();
                 break;
-            case "feedAnalysis":
+            case "feed":
+                getFeedAnalysis();
+                drawGraph("/getFeedsAnalysisData", ".feedMonthChart", "periodGroupedLikes", -0.965, -0.9);
+                drawGraph("/getFeedsAnalysisData", ".feedHoursChart", "hourGroupedLikes", -0.915, -1.1);
                 break;
-            case "loadedPhotos":
+            case "loaded":
+                getUploadedAnalysis();
+                drawGraph("/getUploadedAnalysisData", ".loadedMonthChart", "periodGroupedLikes", -0.965, -0.9);
+                drawGraph("/getUploadedAnalysisData", ".loadedHoursChart", "hourGroupedLikes", -0.915, -1.1);
                 break;
-            case "taggedPhotos":
+            case "tagged":
+                getTaggedAnalysis();
+                drawGraph("/getTaggedAnalysisData", ".taggedMonthChart", "periodGroupedLikes", -0.965, -0.9);
+                drawGraph("/getTaggedAnalysisData", ".taggedHoursChart", "hourGroupedLikes", -0.915, -1.1);
                 break;
             default:
                 break;
@@ -50,45 +50,29 @@ $(function () {
 })
 
 
-function getCompleteAnalysis() {
+function home() {
+    $.ajax({
+        url: "/overall", success: function (result) {
+            $("#totalLikeCount").html("Total likes count: "+result.data.analysis.likesCount);
+            for (key in result.data.analysis.periodGroupedLikes) {
+                $(".totalGrouped").append("<tr><td>" + key + "</td><td>" + result.data.analysis.periodGroupedLikes[key] + "</td></tr>")
+            }
+            for (key in result.data.analysis.hourGroupedLikes) {
+                $(".totalHours").append("<tr><td>" + key + "</td><td>" + result.data.analysis.hourGroupedLikes[key] + "</td></tr>")
+            }
+            drawGraph("/getTotalAnalysisData", ".totalMonthChart", "periodGroupedLikes", -0.965, -0.9);
+            drawGraph("/getTotalAnalysisData", ".totalHoursChart", "hourGroupedLikes", -0.915, -1.1);
+        }
+    })
+}
+
+
+function whoLikesYouAnalysis() {
     $.ajax({
         url: "/overall", success: function (result) {
             $("#firstPic .podiumPic").attr("src", result.data.analysis.likesByPerson[0].profilePhoto);
             $("#secondPic .podiumPic").attr("src", result.data.analysis.likesByPerson[1].profilePhoto);
             $("#thirdPic .podiumPic").attr("src", result.data.analysis.likesByPerson[2].profilePhoto);
-
-            //deal show full screen images
-            $(".bestPicture").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-                $(".backgroundOpacity").css("display", "block");
-            });
-
-            $(".profilePic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-                $(".backgroundOpacity").css("display", "block");
-            });
-
-            var firstPic = $("#firstPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[0].profilePhoto + "'>");
-                $(".backgroundOpacity").css("display", "block");
-            });
-
-            var secondPic = $("#secondPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[1].profilePhoto + "'>");
-                $(".backgroundOpacity").css("display", "block");
-            });
-
-            $("#thirdPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[2].profilePhoto + "'>");
-                $(".backgroundOpacity").css("display", "block");
-            });
-
-            $(".backgroundOpacity").click(function () {
-                if ($(".backgroundOpacity").css("display") == "block") {
-                    $(".fullscreen").remove();
-                    $(".backgroundOpacity").css("display", "none");
-                }
-            })
 
             $("#first").attr("href", result.data.analysis.likesByPerson[0].profileLink)
             $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink)
@@ -103,19 +87,14 @@ function getCompleteAnalysis() {
                 window.location = ($(this).attr("href"))
             })
 
-            $("#totalLikeCount").append(result.data.analysis.likesCount)
+            $('.friendTable').on("click", "tr", function () {
+                window.location = ($(this).attr("data-href"))
+            });
 
-
-            //tables
             for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
                 $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
             }
-            for(key in result.data.analysis.periodGroupedLikes){
-                $(".totalGrouped").append("<tr><td>" + key + "</td><td>" + result.data.analysis.periodGroupedLikes[key]+ "</td></tr>")
-            }
-            for(key in result.data.analysis.hourGroupedLikes){
-                $(".totalHours").append("<tr><td>" + key + "</td><td>" + result.data.analysis.hourGroupedLikes[key]+ "</td></tr>")
-            }
+
 
         }
     })
@@ -124,12 +103,12 @@ function getCompleteAnalysis() {
 function getFeedAnalysis() {
     $.ajax({
         url: "/getFeedsAnalysisData", success: function (result) {
-            $("#feedLikeCount").append(result.data.likesCount)
-            for(key in result.data.periodGroupedLikes){
-                $(".feedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            $("#feedLikeCount").html("Feed likes count: "+result.data.likesCount)
+            for (key in result.data.periodGroupedLikes) {
+                $(".feedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
-            for(key in result.data.hourGroupedLikes){
-                $(".feedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            for (key in result.data.hourGroupedLikes) {
+                $(".feedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
             }
         }
     })
@@ -138,12 +117,12 @@ function getFeedAnalysis() {
 function getUploadedAnalysis() {
     $.ajax({
         url: "/getUploadedAnalysisData", success: function (result) {
-            $("#loadedLikeCount").append(result.data.likesCount)
-            for(key in result.data.periodGroupedLikes){
-                $(".loadedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            $("#loadedLikeCount").html("Uploaded photos likes count: "+result.data.likesCount)
+            for (key in result.data.periodGroupedLikes) {
+                $(".loadedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
-            for(key in result.data.hourGroupedLikes){
-                $(".loadedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            for (key in result.data.hourGroupedLikes) {
+                $(".loadedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
             }
         }
     })
@@ -152,12 +131,12 @@ function getUploadedAnalysis() {
 function getTaggedAnalysis() {
     $.ajax({
         url: "/getTaggedAnalysisData", success: function (result) {
-            $("#taggedLikeCount").append(result.data.likesCount)
-            for(key in result.data.periodGroupedLikes){
-                $(".taggedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key]+ "</td></tr>")
+            $("#taggedLikeCount").html("Tagged photos likes count: "+result.data.likesCount)
+            for (key in result.data.periodGroupedLikes) {
+                $(".taggedGrouped").append("<tr><td>" + key + "</td><td>" + result.data.periodGroupedLikes[key] + "</td></tr>")
             }
-            for(key in result.data.hourGroupedLikes){
-                $(".taggedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key]+ "</td></tr>")
+            for (key in result.data.hourGroupedLikes) {
+                $(".taggedHours").append("<tr><td>" + key + "</td><td>" + result.data.hourGroupedLikes[key] + "</td></tr>")
             }
         }
     })
@@ -168,14 +147,15 @@ function drawWordCloud() {
     var wordsWeight = [];
     $.ajax({
         url: "/wordsCloud", success: function (result) {
+
+            //create two array with the data collected from the ajax call
             for (var i = 0; i < result.data.length; i++) {
                 words.push(result.data[i].word);
                 wordsWeight.push(result.data[i].count);
             }
 
+            //by adding string to the array below [escapeWords] thei will be trimmed from the result cloud
             var escapeWords = [];
-
-            var final = [];
             for (i = 0; i < escapeWords.length; i++) {
                 for (j = 0; j < words.length; j++) {
                     if (words[j].toLowerCase() === escapeWords[i].toLowerCase()) {
@@ -185,19 +165,23 @@ function drawWordCloud() {
                 }
             }
 
-
-            $.each(words, function (i, el) {
-                if ($.inArray(el, final) === -1) final.push(el);
-            });
+            //select scale of color
             var fill = d3.scale.category20b();
-            var rotations = [-60, -30, 0, 30, 60, 90];
+
+            //set the rotations for the words, choosed random when drawing
+            var rotations = [-60, -30, 0, 30, 60, 90]
+            //clear the page when redrawing
             if ($(".wordCloudContainer").children().length > 0) {
                 $(".wordCloudContainer").children()[0].remove();
             }
+
+            //create the cloud
             var layout = d3.layout.cloud()
                 .size([$(".tab-content div.active").width() - 54, 800])
+
+                //map the words array into obj --> unfortunately the method .data(array) below force us to have the otherwise useless array "words"
                 .words(words.map(function (d) {
-                    return {text: d, size: 50, test: "haha"};
+                    return {text: d, size: 40};
                 }))
                 .padding(5)
                 .rotate(function () {
@@ -208,9 +192,9 @@ function drawWordCloud() {
                     return d.size * (wordsWeight[i] / 2);
                 })
                 .on("end", draw);
-
             layout.start();
 
+            //draw the cloud
             function draw(words) {
                 d3.select(".wordCloudContainer").append("svg")
                     .attr("width", layout.size()[0])
@@ -236,6 +220,7 @@ function drawWordCloud() {
                     });
             }
 
+            //fill the table below the cloud
             for (var i = 0; i < result.data.length; i++) {
                 $(".wordsCount").append("<tr><td>" + result.data[i].word + "</td><td>" + result.data[i].count + "</td></tr>")
             }
@@ -247,7 +232,7 @@ function drawWordCloud() {
 }
 
 
-function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
+function drawGraph(route, svgClassName, tableName, deltaX, deltaY) {
     $.ajax({
         url: route, success: function (result) {
             var month = [];
@@ -289,7 +274,7 @@ function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
                 .offset([-10, 0])
                 .html(function (d) {
                     tipMonth = monthComplete[document.elementFromPoint(event.clientX, event.clientY).id]
-                    return "<strong>Likes count:</strong> <span class='tip'>" + d +"</span><br><strong>When: </strong><span>"+tipMonth+"</span>";
+                    return "<strong>Likes count:</strong> <span class='tip'>" + d + "</span><br><strong>When: </strong><span>" + tipMonth + "</span>";
                 })
 
 
@@ -323,7 +308,7 @@ function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
                 })
                 .attr("width", barWidth - 1)
                 .attr("class", "bar")
-                .attr("id", function(d,i){
+                .attr("id", function (d, i) {
                     return i;
                 })
                 .on('mouseover', tip.show)
@@ -335,7 +320,7 @@ function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
 
             chart.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate("+deltaY+"," + height + ")")
+                .attr("transform", "translate(" + deltaY + "," + height + ")")
                 .call(xAxis);
 
             chart.append("g")
@@ -350,7 +335,6 @@ function drawGraph(route,svgClassName, tableName,deltaX, deltaY) {
         }
 
     })
-
 
 
 }
