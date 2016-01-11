@@ -90,8 +90,11 @@ module.exports = function (app, passport) {
                     });
                 })
                 .success(function () {
+                    console.log(Session.lastAnalysis(email));
                     res.render('user.ejs', {
                         user: req.user,
+                        lastAnalysis: Session.lastAnalysis(req.user.facebook.email),
+                        countAnalysis: Session.analysisCount(req.user.facebook.email),
                         data: analysisResult
                     });
                 });
