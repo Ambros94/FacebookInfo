@@ -90,7 +90,6 @@ module.exports = function (app, passport) {
                     });
                 })
                 .success(function () {
-                    console.log(Session.lastAnalysis(email));
                     res.render('user.ejs', {
                         user: req.user,
                         lastAnalysis: Session.lastAnalysis(req.user.facebook.email),
@@ -489,7 +488,7 @@ module.exports = function (app, passport) {
                      [id , name , email , lastAnalysis , analysisCount , button , button];
                      */
                     let email = user.facebook.email;
-                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear', 'Personify']);
+                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear']);
                 }
             })
             .error(function (err) {
@@ -513,7 +512,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBAAaw2wZChRZCgBuwBZBVWqCfWi2Qbo5IlryZBcZCeaD16givnUdt72oGBJfZBa9jeLMH2eh8bBLlGUCKGur7nEaRwVG05jZAZAm03ZARDweUwW8I5xenMwsWCgDBasQsdCGkDFnoticTuLHEp98PFdwaJhJzv49WQKcNScOaOQszhA5luHutZApJTl2z1ZCtlYkugZDZD";
+        var token = "CAACEdEose0cBAOrKmL9KKZBW4DeIhbkIhADWyHrjKKkzi3epHl02O4UGIHGa5vEpgHCnIBSlbhVZA23MbivZBdZCpBwXqoqdtrxCL9QWW20RKvLJkuLkBVtgnBVqO8ZCj8MyPf7EPLsTmeydhxoQvPGuaYxVm6ZC3Nlf7qZCRccmwkZBDHHBKIprTpOSFmmdNTiXOV5IVtxJgcvVQLLh1d6p";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*

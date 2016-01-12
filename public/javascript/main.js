@@ -1,11 +1,6 @@
 $(function () {
     home();
 
-    $(".profilePic").click(function () {
-        $(".backgroundOpacity").html("<img class='fullscreen' src='https://scontent-frt3-1.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/255304_386798028040133_63815419_n.jpg?oh=7f3f8b09dbaedbbbeeeae31ee3de999e&oe=5719C33F'>");
-        $(".backgroundOpacity").css("display", "block");
-    });
-
     $("#reload").click(function () {
         window.location = "/analyzing"
     })
@@ -54,6 +49,19 @@ $(function () {
 function home() {
     $.ajax({
         url: "/overall", success: function (result) {
+            $(".profilePic").attr("src", result.data.profilePhoto);
+
+            $(".profilePic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $(".backgroundOpacity").click(function(){
+                $(".backgroundOpacity").css("display", "none");
+                $(".nav").css("z-index", "0");
+            })
+
             bestElementContainer = $("#totalBestElementContainer");
             if (bestElementContainer.children().length == 1) {
                 if(result.data.analysis.bestElement.post.message === undefined){
@@ -62,6 +70,12 @@ function home() {
                     bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.analysis.bestElement.post.from.name+"<br>Message: "+result.data.analysis.bestElement.post.name+"<br>Likes count: "+result.data.analysis.bestElement.likesCount+"</div>")
                 }
             }
+
+            $("#totalBestElement").click(function(){
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.bestElement.post.images[0].source+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
             $("#totalLikeCount").html("Total likes count: " + result.data.analysis.likesCount);
             /*
              Convert
@@ -113,23 +127,44 @@ function whoLikesYouAnalysis() {
             $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink);
             $("#first").click(function () {
                 window.location = ($(this).attr("href"))
-            })
+            });
             $("#second").click(function () {
                 window.location = ($(this).attr("href"))
-            })
+            });
             $("#third").click(function () {
                 window.location = ($(this).attr("href"))
-            })
-
-            $('.friendTable').on("click", "tr", function () {
-                window.location = ($(this).attr("data-href"))
             });
+
+            $("#firstPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[0].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $("#secondPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[1].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $("#thirdPic .podiumPic").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[2].profilePhoto+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $(".backgroundOpacity").click(function(){
+                $(".backgroundOpacity").css("display", "none");
+                $(".nav").css("z-index", "0");
+            })
 
             for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
                 $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
             }
 
-
+            $('.friendTable').on("click", "tr", function () {
+                window.location = ($(this).attr("data-href"))
+            });
         }
     })
 }
@@ -162,7 +197,6 @@ function getFeedAnalysis() {
                 return (a.month < b.month) ? 1 : -1;
             });
 
-
             for (var i = 0; i < periodGroupedLikesArray.length; i++) {
                 $(".feedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
             }
@@ -185,6 +219,18 @@ function getUploadedAnalysis() {
                     bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
                 }
             }
+
+            $("#loadedBestElement").click(function(){
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.bestElement.post.images[0].source+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $(".backgroundOpacity").click(function(){
+                $(".backgroundOpacity").css("display", "none");
+                $(".nav").css("z-index", "0");
+            })
+
             $("#loadedLikeCount").html("Uploaded photos likes count: " + result.data.likesCount);
             var periodGroupedLikesArray = [];
             for (var key in result.data.periodGroupedLikes) {
@@ -229,6 +275,18 @@ function getTaggedAnalysis() {
                     bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
                 }
             }
+
+            $("#taggedBestElement").click(function(){
+                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.bestElement.post.images[0].source+"'>");
+                $(".backgroundOpacity").css("display", "block");
+                $(".nav").css("z-index", "-1");
+            });
+
+            $(".backgroundOpacity").click(function(){
+                $(".backgroundOpacity").css("display", "none");
+                $(".nav").css("z-index", "0");
+            });
+
             $("#taggedLikeCount").html("Tagged photos likes count: " + result.data.likesCount);
             var periodGroupedLikesArray = [];
             for (var key in result.data.periodGroupedLikes) {

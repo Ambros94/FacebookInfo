@@ -401,6 +401,7 @@ Page structure
 }
 
 .backgroundOpacity {
+    z-index: 100;
     position: fixed;
     top: 0;
     right: 0;
@@ -452,7 +453,7 @@ Page structure
     position: fixed;
     height: 40px;
     top: 65px;
-    margin-left: 31%;
+    margin-left: 32%;
     background-color: rgba(255,255,255,0.9);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
