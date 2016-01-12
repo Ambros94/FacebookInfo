@@ -512,7 +512,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBAOrKmL9KKZBW4DeIhbkIhADWyHrjKKkzi3epHl02O4UGIHGa5vEpgHCnIBSlbhVZA23MbivZBdZCpBwXqoqdtrxCL9QWW20RKvLJkuLkBVtgnBVqO8ZCj8MyPf7EPLsTmeydhxoQvPGuaYxVm6ZC3Nlf7qZCRccmwkZBDHHBKIprTpOSFmmdNTiXOV5IVtxJgcvVQLLh1d6p";
+        var token = "CAACEdEose0cBAGZCqfHwnWWzoZAP6uK0zGVIxH0xPTF0ESYVrrdr95i9s3JsAoDD12pCG6ZAEnXa1XXSVOzQUzyLq4UgkIhWcprP2NCH4kJ8OLYdQcMGwVpO7VhyyudnZCRWDz7e1gZCkZBsQyeZADOy6mJKI5cjn2DkSf85GfWH3bpJ1WSyZAC5qybbZAMIiOb8oIVZBANQR8ZCQZDZD";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*
