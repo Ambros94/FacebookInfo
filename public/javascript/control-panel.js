@@ -13,13 +13,15 @@ $(document).ready(function () {
                 // `data` option, which defaults to the column being worked with, in
                 // this case `data: 0`.
                 "render": function (data, type, row) {
+                    if (data === row[5])
+                        return '<button  type="button" class="btn btn-primary" email="' + row[2] + '">' + data + '</button>';
                     if (data === row[6])
                         return '<button  type="button" class="btn btn-warning" email="' + row[2] + '">' + data + '</button>';
-                    else
-                        return '<button  type="button" class="btn btn-primary" email="' + row[2] + '">' + data + '</button>';
+                     if (data === row[7])
+                        return '<button  type="button" class="btn btn-info" email="' + row[2] + '">' + data + '</button>';
 
                 },
-                "targets": [5, 6]
+                "targets": [5, 6,7]
             }
         ]
     });
@@ -32,7 +34,7 @@ $(document).ready(function () {
         $.ajax("/forceAnalysis/" + email)
             .done(function () {
                 alert("success");
-                table.ajax.reload( null, false );
+                table.ajax.reload(null, false);
             })
             .fail(function () {
                 alert("Impossible to analyze");
@@ -48,11 +50,19 @@ $(document).ready(function () {
         $.ajax("/clearUser/" + email)
             .done(function () {
                 alert("success");
-                table.ajax.reload( null, false );
+                table.ajax.reload(null, false);
             })
             .fail(function () {
                 alert("Impossible to clear user data");
             })
 
+    });
+
+    /*
+     Personify user
+     */
+    $('#userTable').on("click", "button.btn-info", function () {
+        var email = $(this).attr('email');
+        window.location = "/profile/"+ email;
     });
 });

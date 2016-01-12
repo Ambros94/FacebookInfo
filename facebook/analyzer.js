@@ -95,7 +95,7 @@ var contains = function (array, element, comparator) {
     return -1;
 };
 
-var computeTotalAnalysis = function (email,profilePhoto) {
+var computeTotalAnalysis = function (email, profilePhoto) {
     let report = new AnalysisReport();
     /**
      * Tagged Photos
@@ -252,7 +252,7 @@ var computeTotalAnalysis = function (email,profilePhoto) {
         return destinationCollection.update({email: email}, {
             email: email,
             analysis: report,
-            profilePhoto:profilePhoto
+            profilePhoto: profilePhoto
         }, {upsert: true});
     });
 
@@ -445,6 +445,11 @@ var analyzeData = function (args) {
                         }, 0);
                     groupedByHour[key] = likesInPeriod;
                 }
+                var rightKeys = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'];
+                for (var i = 0; i < rightKeys.length; i++) {
+                    if (typeof groupedByHour[rightKeys[i]] === 'undefined')
+                        groupedByHour[rightKeys[i]] = 0;
+                }
                 report.hourGroupedLikes = groupedByHour;
                 return dbPromise;
             }).then(function (db) {
@@ -531,7 +536,7 @@ var analyzeUser = function (email, token) {
     }).then(function () {
         console.log("Uploaded photo analyzed");
         Sessions.updateState(email, Sessions.StatesEnum.TOTALANALYSIS);
-        return computeTotalAnalysis(email,profilePhoto);
+        return computeTotalAnalysis(email, profilePhoto);
     }).then(function () {
         Sessions.updateState(email, Sessions.StatesEnum.COMPLETED);
         //After 5 minutes restores the state

@@ -90,6 +90,7 @@ module.exports = function (app, passport) {
                     });
                 })
                 .success(function () {
+                    console.log(Session.lastAnalysis(email));
                     res.render('user.ejs', {
                         user: req.user,
                         lastAnalysis: Session.lastAnalysis(req.user.facebook.email),
@@ -105,6 +106,90 @@ module.exports = function (app, passport) {
         }
     });
 
+    /*
+     User profile (MAIN PAGE)
+     */
+    app.get('/profile/:email', isAdmin, function (req, res) {
+        var analysisResult;
+        /*
+         Check if the authenticated user has accepted terms & conditions
+         */
+        let email=req.params.email;
+        console.log("email", email);
+        var analysis = monk.get(collections.userCompleteAnalysis);
+        analysis.find({}, {stream: true})
+            .each(function (item) {
+                console.log(item.email, email, item.email == email);
+                if (typeof item !== 'undefined' && item.email == email) {
+                    analysisResult = item;
+                }
+            })
+            .error(function () {
+                res.send({
+                    data: [{
+                        "_id": '',
+                        "email": "",
+                        "analysis": {
+                            "usedWords": [{"word": ""}],
+                            "likesByPerson": [{
+                                "id": "",
+                                "name": "",
+                                "count": 0,
+                                "profileLink": "",
+                                "profilePhoto": ""
+                            }],
+                            "bestElement": {
+                                "likesCount": 0,
+                                "post": {
+                                    "id": "",
+                                    "created_time": "",
+                                    "from": {"name": "", "id": ""},
+                                    "height": 0,
+                                    "icon": "",
+                                    "images": [{"height": 0, "source": "", "whidth": 0}],
+                                    "link": "",
+                                    "name": "",
+                                    "picture": "",
+                                    "source": "",
+                                    "updated-time": "",
+                                    "width": 0,
+                                    "tags": {
+                                        data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
+                                        "paging": {"cursor": {"before": "", "after": ""}}
+                                    },
+                                    "comments": {
+                                        "data": [{
+                                            "created_time": "",
+                                            "from": {"name": "", "id": ""},
+                                            "message": "",
+                                            "can_remove": false,
+                                            "like_count": 0,
+                                            "user_like": false,
+                                            "id": ""
+                                        }], "paging": {"cursor": {"before": "", "after": ""}}
+                                    },
+                                    "likes": [{"id": "", "name": ""}]
+                                }
+                            },
+                            "likesCount": 0,
+                            "periodGroupedLikes": {"2016-01": 0},
+                            "hourGroupedLikes": {"0": 0}
+                        }
+                    }]
+                });
+            })
+            .success(function () {
+                console.log(Session.lastAnalysis(email));
+                res.render('user.ejs', {
+                    user: req.user,
+                    lastAnalysis: Session.lastAnalysis(email),
+                    countAnalysis: Session.analysisCount(email),
+                    data: analysisResult
+                });
+            });
+
+    });
+
 
     /////////////////////////////////////////////
     /////////////// Admin Pages /////////////////
@@ -113,12 +198,6 @@ module.exports = function (app, passport) {
     app.get('/admin', isLoggedIn, function (req, res) {
         res.render('control-panel.ejs', {
             user: req.user
-        });
-    });
-
-    app.get('/test', function (req, res) {
-        res.render('user.ejs', {
-            user: req
         });
     });
 
@@ -142,7 +221,6 @@ module.exports = function (app, passport) {
     app.get('/terms_accepted', function (req, res) {
         Session.acceptTerms(req.user.facebook.email);
         res.redirect('/analyzing');
-        //res.redirect('/profile');
     });
 
     /////////////////////////////////////////////
@@ -411,7 +489,7 @@ module.exports = function (app, passport) {
                      [id , name , email , lastAnalysis , analysisCount , button , button];
                      */
                     let email = user.facebook.email;
-                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear']);
+                    userArray.push([user.facebook.id, user.facebook.name, email, Session.lastAnalysis(email), Session.analysisCount(email), 'Analyze', 'Clear', 'Personify']);
                 }
             })
             .error(function (err) {
@@ -435,7 +513,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBADwiTP3gUu9LXVWscKdEpJMrDtZBYZCEOuLzkDfrVpz1LW8LcroIuSFgL0vdcyx7BqLKkplu5zFGoVljzgIaAgnsxZC72gn297NTocipA0IsZAlZAVQrcjAibPIZAPruvMiRd5jIEbw5lDo3RjBOFErVzxKkA95g19uQzzZCgLBVtfzm165Jygi99k3uy4ax445EhyKh0XX";
+        var token = "CAACEdEose0cBAAaw2wZChRZCgBuwBZBVWqCfWi2Qbo5IlryZBcZCeaD16givnUdt72oGBJfZBa9jeLMH2eh8bBLlGUCKGur7nEaRwVG05jZAZAm03ZARDweUwW8I5xenMwsWCgDBasQsdCGkDFnoticTuLHEp98PFdwaJhJzv49WQKcNScOaOQszhA5luHutZApJTl2z1ZCtlYkugZDZD";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*
