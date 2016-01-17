@@ -12,6 +12,8 @@ $(function () {
 
 
     $(".nav").click(function () {
+        var body = $("html, body");
+        body.stop().animate({scrollTop: 0}, '500', 'swing', function () {});
         activePill = document.elementFromPoint(event.clientX, event.clientY).parentNode.id
         switch (activePill) {
             case "total":
@@ -52,27 +54,27 @@ function home() {
             $(".profilePic").attr("src", result.data.profilePhoto);
 
             $(".profilePic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
-            $(".backgroundOpacity").click(function(){
+            $(".backgroundOpacity").click(function () {
                 $(".backgroundOpacity").css("display", "none");
                 $(".nav").css("z-index", "0");
             })
 
             bestElementContainer = $("#totalBestElementContainer");
             if (bestElementContainer.children().length == 1) {
-                if(result.data.analysis.bestElement.post.message === undefined){
+                if (result.data.analysis.bestElement.post.message === undefined) {
                     bestElementContainer.append("<img src='" + result.data.analysis.bestElement.post.images[0].source + "' id='totalBestElement'>");
                     $("#totalBestElement").attr("class", "bestElement");
-                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.analysis.bestElement.post.from.name+"<br>Message: "+result.data.analysis.bestElement.post.name+"<br>Likes count: "+result.data.analysis.bestElement.likesCount+"</div>")
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: " + result.data.analysis.bestElement.post.from.name + "<br>Message: " + result.data.analysis.bestElement.post.name + "<br>Likes count: " + result.data.analysis.bestElement.likesCount + "</div>")
                 }
             }
 
-            $("#totalBestElement").click(function(){
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.bestElement.post.images[0].source+"'>");
+            $("#totalBestElement").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.bestElement.post.images[0].source + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
@@ -101,10 +103,11 @@ function home() {
                 return (a.month < b.month) ? 1 : -1;
             });
 
-
+            $(".totalGrouped").empty();
             for (var i = 0; i < periodGroupedLikesArray.length; i++) {
                 $(".totalGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
             }
+            $(".totalHours").empty();
             for (var i = 0; i < hourGroupedLikes.length; i++) {
                 $(".totalHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
@@ -126,44 +129,45 @@ function whoLikesYouAnalysis() {
             $("#second").attr("href", result.data.analysis.likesByPerson[1].profileLink);
             $("#third").attr("href", result.data.analysis.likesByPerson[2].profileLink);
             $("#first").click(function () {
-                window.location = ($(this).attr("href"))
+                window.open($(this).attr("href"), '_blank');
             });
             $("#second").click(function () {
-                window.location = ($(this).attr("href"))
+                window.open($(this).attr("href"), '_blank');
             });
             $("#third").click(function () {
-                window.location = ($(this).attr("href"))
+                window.open($(this).attr("href"), '_blank');
             });
 
             $("#firstPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[0].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[0].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
             $("#secondPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[1].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[1].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
             $("#thirdPic .podiumPic").click(function () {
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.analysis.likesByPerson[2].profilePhoto+"'>");
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.analysis.likesByPerson[2].profilePhoto + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
-            $(".backgroundOpacity").click(function(){
+            $(".backgroundOpacity").click(function () {
                 $(".backgroundOpacity").css("display", "none");
                 $(".nav").css("z-index", "0");
             })
 
+            $(".friendLikesCount").empty();
             for (var i = 0; i < result.data.analysis.likesByPerson.length; i++) {
                 $(".friendLikesCount").append("<tr data-href='" + result.data.analysis.likesByPerson[i].profileLink + "'><td>" + result.data.analysis.likesByPerson[i].name + "</td><td>" + result.data.analysis.likesByPerson[i].count + "</td></tr>")
             }
 
             $('.friendTable').on("click", "tr", function () {
-                window.location = ($(this).attr("data-href"))
+                window.open($(this).attr("data-href"), '_blank');
             });
         }
     })
@@ -197,9 +201,11 @@ function getFeedAnalysis() {
                 return (a.month < b.month) ? 1 : -1;
             });
 
+            $(".feedGrouped").empty();
             for (var i = 0; i < periodGroupedLikesArray.length; i++) {
                 $(".feedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
             }
+            $(".feedHours").empty();
             for (var i = 0; i < hourGroupedLikes.length; i++) {
                 $(".feedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
@@ -213,20 +219,20 @@ function getUploadedAnalysis() {
         url: "/getUploadedAnalysisData", success: function (result) {
             bestElementContainer = $("#loadedBestElementContainer");
             if (bestElementContainer.children().length == 1) {
-                if(result.data.bestElement.post.message === undefined){
+                if (result.data.bestElement.post.message === undefined) {
                     bestElementContainer.append("<img src='" + result.data.bestElement.post.images[0].source + "' id='loadedBestElement'>");
                     $("#loadedBestElement").attr("class", "bestElement");
-                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: " + result.data.bestElement.post.from.name + "<br>Last Update: " + result.data.bestElement.post.updated_time + "<br>Likes count: " + result.data.bestElement.likesCount + "</div>")
                 }
             }
 
-            $("#loadedBestElement").click(function(){
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.bestElement.post.images[0].source+"'>");
+            $("#loadedBestElement").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.bestElement.post.images[0].source + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
-            $(".backgroundOpacity").click(function(){
+            $(".backgroundOpacity").click(function () {
                 $(".backgroundOpacity").css("display", "none");
                 $(".nav").css("z-index", "0");
             })
@@ -253,10 +259,11 @@ function getUploadedAnalysis() {
                 return (a.month < b.month) ? 1 : -1;
             });
 
-
+            $(".loadedGrouped").empty();
             for (var i = 0; i < periodGroupedLikesArray.length; i++) {
                 $(".loadedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
             }
+            $(".loadedHours").empty();
             for (var i = 0; i < hourGroupedLikes.length; i++) {
                 $(".loadedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
@@ -269,20 +276,20 @@ function getTaggedAnalysis() {
         url: "/getTaggedAnalysisData", success: function (result) {
             bestElementContainer = $("#taggedBestElementContainer");
             if (bestElementContainer.children().length == 1) {
-                if(result.data.bestElement.post.message === undefined){
+                if (result.data.bestElement.post.message === undefined) {
                     bestElementContainer.append("<img src='" + result.data.bestElement.post.images[0].source + "' id='taggedBestElement'>");
                     $("#taggedBestElement").attr("class", "bestElement");
-                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: "+result.data.bestElement.post.from.name+"<br>Last Update: "+result.data.bestElement.post.updated_time+"<br>Likes count: "+result.data.bestElement.likesCount+"</div>")
+                    bestElementContainer.append("<div class='bestElementDescription'>Image posted by: " + result.data.bestElement.post.from.name + "<br>Last Update: " + result.data.bestElement.post.updated_time + "<br>Likes count: " + result.data.bestElement.likesCount + "</div>")
                 }
             }
 
-            $("#taggedBestElement").click(function(){
-                $(".backgroundOpacity").html("<img class='fullscreen' src='"+result.data.bestElement.post.images[0].source+"'>");
+            $("#taggedBestElement").click(function () {
+                $(".backgroundOpacity").html("<img class='fullscreen' src='" + result.data.bestElement.post.images[0].source + "'>");
                 $(".backgroundOpacity").css("display", "block");
                 $(".nav").css("z-index", "-1");
             });
 
-            $(".backgroundOpacity").click(function(){
+            $(".backgroundOpacity").click(function () {
                 $(".backgroundOpacity").css("display", "none");
                 $(".nav").css("z-index", "0");
             });
@@ -309,10 +316,11 @@ function getTaggedAnalysis() {
                 return (a.month < b.month) ? 1 : -1;
             });
 
-
+            $(".taggedGrouped").empty();
             for (var i = 0; i < periodGroupedLikesArray.length; i++) {
                 $(".taggedGrouped").append("<tr><td>" + periodGroupedLikesArray[i].month + "</td><td>" + periodGroupedLikesArray[i].data + "</td></tr>")
             }
+            $(".taggedHours").empty();
             for (var i = 0; i < hourGroupedLikes.length; i++) {
                 $(".taggedHours").append("<tr><td>" + hourGroupedLikes[i].month + "</td><td>" + hourGroupedLikes[i].data + "</td></tr>")
             }
@@ -405,8 +413,9 @@ function drawWordCloud() {
             }
 
             //fill the table below the cloud
+            $(".wordsCount").empty();
             for (var i = 0; i < result.data.length; i++) {
-                $(".wordsCount").append("<tr><td>" + result.data[i].word + "</td><td>" + result.data[i].count + "</td></tr>")
+                $(".wordsCount").append("<tr><td>" + result.data[i].word + "</td><td>" + result.data[i].count + "</td></tr>");
             }
 
         }

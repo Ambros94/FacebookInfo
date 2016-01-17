@@ -537,6 +537,9 @@ var analyzeUser = function (email, token) {
         console.log("Uploaded photo analyzed");
         Sessions.updateState(email, Sessions.StatesEnum.TOTALANALYSIS);
         return computeTotalAnalysis(email, profilePhoto);
+
+
+
     }).then(function () {
         Sessions.updateState(email, Sessions.StatesEnum.COMPLETED);
         //After 5 minutes restores the state
@@ -548,6 +551,9 @@ var analyzeUser = function (email, token) {
         Sessions.updateState(email, Sessions.StatesEnum.ERROR);
         console.log("Error during downloading or analysis", err);
     });
+
+
+
 };
 
 

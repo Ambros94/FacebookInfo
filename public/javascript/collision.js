@@ -26,7 +26,8 @@ $(function(){
 
     var svg = d3.select(".container").append("svg")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
+        .attr("id", "svg");
 
     svg.selectAll("circle")
         .data(nodes.slice(1))

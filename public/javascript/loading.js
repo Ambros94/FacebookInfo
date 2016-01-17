@@ -18,13 +18,14 @@ var loadingRequest = function () {
             }
             if (state === 8) {
                 $(".wait").html("<a href='http://localhost:8080/profile' class='btn btn-primary' role='button'>Go to Stalk.com</a>")
+                $("#footer").append("<a href='http://localhost:8080/profile'>Go to Stalk.com</a>")
                 $(".waitHidden").click(function(){
                     window.location = 'http://localhost:8080/profile';
                 })
                 return;
             }
             else {
-                $(".wait").html("<p>Please Wait..</p>")
+                $(".wait").html("<img src='/images/loading_dots.gif' id='gif' alt='loading gif'>")
                 setTimeout(function () {
                     loadingRequest();
                 }, 2000);

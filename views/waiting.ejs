@@ -10,20 +10,56 @@
             left: 46%;
             top: 46%;
         }
-        .waitHidden{
+
+        .waitHidden {
             position: absolute;
             width: 128px;
             height: 34px;
             left: 46%;
             top: 46%;
         }
+
+        h1 {
+            font-size: 6rem;
+            color: rgb(55, 76, 140);
+            text-align: center;
+        }
+
+        h3 {
+            margin-top: -30px;
+            font-size: 3rem;
+            color: rgb(55, 76, 140);
+            text-align: center;
+        }
+
+        #svg {
+            margin-top: -120px !important;
+        }
+
+        #footer {
+            text-align: center;
+            clear: both;
+            position: relative;
+            z-index: 10;
+            height: 3em;
+            margin-top: -3em;
+        }
+
+        #gif{
+            width: 100px;
+            margin-top: -50px;
+        }
     </style>
 </head>
 <body>
 <div class="container">
+    <h1>Stalk.com</h1>
+    <br>
+    <h3>Move the mouse over the bubbles..</h3>
     <div class="waitHidden"></div>
     <div class="wait"></div>
 </div>
+<footer id="footer"></footer>
 <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
