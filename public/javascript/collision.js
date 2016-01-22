@@ -2,9 +2,25 @@
  * Created by n0skill on 11.01.16.
  */
 $(function(){
-    var width = d3.select(".container").node().getBoundingClientRect().width-30,
-        height = $(document).height();
 
+    //hide dots gif if window height is to small
+    $( window ).resize(function() {
+        console.log($(window).height());
+        if($(window).height() < 300){
+            $("#gif").hide();
+        }
+    });
+
+
+    /////////////////////////////////////////////
+    //////////////// D3 Collision ///////////////
+    /////////////////////////////////////////////
+
+    //get client width and height
+    var width = d3.select("#container").node().getBoundingClientRect().width-30
+    var height = $(document).height();
+
+    //create nodes obj which stores radius balls informations
     var nodes = d3.range(300).map(function () {
             return {radius: Math.random() * 12 + 4};
         }),
@@ -14,21 +30,27 @@ $(function(){
     root.radius = 0;
     root.fixed = true;
 
+
+    // set gravity force to our nodes
+    // light radius is the area around the mouse pointer in which balls are rejected
+    var lightRadius = -1500;
     var force = d3.layout.force()
         .gravity(0.06)
         .charge(function (d, i) {
-            return i ? 0 : -1500;
+            return i ? 0 : lightRadius;
         })
         .nodes(nodes)
         .size([width, height]);
 
     force.start();
 
-    var svg = d3.select(".container").append("svg")
+    //append a new svg to the page
+    var svg = d3.select("#container").append("svg")
         .attr("width", width)
         .attr("height", height)
         .attr("id", "svg");
 
+    //draw circle getting data from nodes array.
     svg.selectAll("circle")
         .data(nodes.slice(1))
         .enter().append("circle")
@@ -39,6 +61,7 @@ $(function(){
             return color(i % 3);
         });
 
+    // handle collision and move all the circles
     force.on("tick", function (e) {
         var q = d3.geom.quadtree(nodes),
             i = 0,
@@ -55,6 +78,7 @@ $(function(){
             });
     });
 
+    //move the root accordint to the current mouse position
     svg.on("mousemove", function () {
         var p1 = d3.mouse(this);
         root.px = p1[0];
@@ -62,6 +86,7 @@ $(function(){
         force.resume();
     });
 
+    //detect collision from circles and arrange them
     function collide(node) {
         var r = node.radius + 16,
             nx1 = node.x - r,

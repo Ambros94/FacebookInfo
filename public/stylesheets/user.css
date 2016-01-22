@@ -1,3 +1,7 @@
+/*
+resetter
+*/
+
 *, *::after, *::before {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -58,7 +62,7 @@ q:before, q:after {
 Header
 */
 
-.headerSettings {
+#headerSettings {
     position: fixed;
     top: 0;
     right: 0;
@@ -67,7 +71,7 @@ Header
     background-color: rgb(55, 76, 140) !important;
 }
 
-.logo {
+#logo {
     position: absolute;
     margin-left: -100px;
     margin-top: -70px;
@@ -80,7 +84,7 @@ Header
     font-size: 1.3rem;
 }
 
-.rotate {
+#rotate {
     -webkit-transform: rotate(90deg);
     -moz-transform: rotate(90deg);
     -ms-transform: rotate(90deg);
@@ -93,7 +97,7 @@ i.material-icons, span.inline {
     color: white;;
 }
 
-.profilePic {
+#profilePic {
     position: absolute;
     top: 40%;
     left: 100px;
@@ -102,26 +106,23 @@ i.material-icons, span.inline {
     border-radius: 5px;
 }
 
-/*
-Personal Stats
-*/
 
 .popover{
     color: black;
-
 }
 
-.podiumContainer {
-    width: 750px;
-    margin: auto;
-    margin-top: 60px;
-    height: 550px;
-}
+/*
+Common tabs
+*/
 
 .tabTitle{
     margin-top: 75px;
     text-align: center;
     padding-bottom: 30px;
+}
+
+.bestElementContainer{
+    min-height: 350px;
 }
 
 .bestElement{
@@ -139,16 +140,66 @@ Personal Stats
     margin-top: 40px;
 }
 
-#totalBestElementContainer{
-    height: 250px;
+.divider{
+    margin-top: 40px;
+    margin-bottom: 40px;
+    margin-left: 25px;
+    margin-right: 25px;
 }
 
-#loadedBestElementContainer{
-    height: 300px;
+
+.likeCount{
+    margin-left: 25px;
+    margin-top: 50px;
 }
 
-#taggedBestElementContainer{
-    height: 300px;
+.analysisTitle{
+    margin-left: 25px;
+}
+
+.TableContainer {
+    margin-top: 30px;
+    margin-left: 25px;
+    margin-right: 25px;
+    margin-bottom: 25px;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+}
+
+.table{
+    margin-bottom: 0px!important;
+}
+
+#backgroundOpacity {
+    z-index: 100;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+.fullscreen {
+    width:700px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -350px;
+    margin-left: -350px;
+}
+
+/*
+Who likes you tab
+*/
+
+
+#podiumContainer {
+    width: 750px;
+    margin: auto;
+    margin-top: 60px;
+    height: 550px;
 }
 
 .podium {
@@ -214,213 +265,18 @@ Personal Stats
     height: 50px;
 }
 
-.divider{
-    margin-top: 40px;
-    margin-bottom: 40px;
-    margin-left: 25px;
-    margin-right: 25px;
-}
 
-.analysisTitle{
-    margin-left: 25px;
-}
+/*
+Words Analysis
+*/
 
-.table{
-    margin-bottom: 0px!important;
-}
-
-.friendTable {
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.wordsTable {
+#wordsTable {
     margin: 25px;
     border: solid 1px rgb(55, 76, 140);
     border-radius: 5px;
 }
 
-.totalGroupedLikeTableContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.totalHoursAnalysisContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.feedGroupedLikeTableContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.feedHoursAnalysisContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.loadedGroupedLikeTableContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.loadedHoursAnalysisContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.taggedGroupedLikeTableContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.taggedHoursAnalysisContainer{
-    margin-top: 30px;
-    margin-left: 25px;
-    margin-right: 25px;
-    margin-bottom: 25px;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-}
-
-.section {
-    padding-bottom: 0px !important;
-    padding-top: 0px !important;
-}
-
-.section > h5 {
-    margin-top: 25px !important;
-    color: grey;
-    font-size: 1rem;
-}
-
-.section > p {
-    margin-bottom: 0px !important;
-    font-size: 2rem;
-}
-
-/*
-Graphs container
-*/
-
-#graph {
-    margin-left: 250px !important;
-}
-
-.ui-icon {
-    -webkit-filter: brightness(0) invert(1) !important;
-    filter: brightness(0) invert(1) !important;
-}
-
-.portlet-toggle {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    margin-top: -8px;
-}
-
-.portlet-content {
-    padding: 0.4em;
-}
-
-.portlet-placeholder {
-    border: 1px dotted black;
-    margin: 0 1em 1em 0;
-    height: 50px;
-}
-
-.placeholder {
-    width: 100%;
-    height: 500px;
-}
-
-.datalabel {
-    width: 100px;
-    height: 100px;
-    border: solid 1px black;
-    z-index: 100;
-}
-
-/*
-Page structure
-*/
-
-.containerMain {
-    padding-top: 65px;
-    display: flex;
-    height: 100%;
-}
-
-.leftMain {
-    width: 20%;
-    min-width: 305px;
-}
-
-.centerMain {
-    padding-left: 5px;
-    padding-right: 5px;
-    padding-top: 0px;
-    width: 60%;
-    min-width: 800px;
-    border-right: solid 1px rgb(55, 76, 140);
-    border-left: solid 1px rgb(55, 76, 140);
-    border-bottom: solid 1px rgb(55, 76, 140);
-}
-
-.backgroundOpacity {
-    z-index: 100;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: none;
-}
-
-.fullscreen {
-    width:700px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    margin-top: -350px;
-    margin-left: -350px;
-}
-
-.wordCloudContainer {
+#wordCloudContainer {
     margin-left: 25px;
     margin-right: 25px;
     margin-top: 60px;
@@ -429,24 +285,14 @@ Page structure
     margin-bottom: 30px;
 }
 
-.graphContainer {
-    margin-top: 60px;
-    width: 95%;
-    border: solid 1px rgb(55, 76, 140);
-    border-radius: 5px;
-    margin-left: 25px;
-    margin-right: 25px;
-    overflow-x: scroll!important;
-    margin-bottom: 25px;
-}
+/*
+Page structure
+*/
 
-.tip{
-    color:white;
-}
-
-.likeCount{
-    margin-left: 25px;
-    margin-top: 50px;
+#containerMain {
+    padding-top: 65px;
+    display: flex;
+    height: 100%;
 }
 
 .nav {
@@ -454,6 +300,7 @@ Page structure
     height: 40px;
     top: 65px;
     margin-left: 32%;
+    min-width: 601px;
     background-color: rgba(255,255,255,0.9);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -473,86 +320,38 @@ li:active > a {
     color: white !important;
 }
 
-.rightMain {
+#leftMain {
+    width: 20%;
+    min-width: 305px;
+}
+
+#centerMain {
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-top: 0px;
+    width: 60%;
+    min-width: 800px;
+    border-right: solid 1px rgb(55, 76, 140);
+    border-left: solid 1px rgb(55, 76, 140);
+    border-bottom: solid 1px rgb(55, 76, 140);
+}
+
+#rightMain {
     width: 20%;
 }
 
-.footer {
-    background-color: rgb(55, 76, 140);
-    width: 100%;
-    position: fixed;
-    bottom: 0;
-
-}
-
-#presets a {
-    border-left: solid #666 1px;
-    padding: 0 10px;
-}
-
-#presets a.first {
-    border-left: none;
-}
-
-#keyword {
-    width: 300px;
-}
-
-#fetcher {
-    width: 500px;
-}
-
-#keyword, #go {
-    font-size: 1.5em;
-}
-
-#text {
-    width: 100%;
-    height: 100px;
-}
-
-p.copy {
-    font-size: small;
-}
-
-#form {
-    font-size: small;
-    position: relative;
-}
-
-hr {
-    border: none;
-    border-bottom: solid #ccc 1px;
-}
-
-a.active {
-    text-decoration: none;
-    color: #000;
-    font-weight: bold;
-    cursor: text;
-}
-
-#angles line, #angles path, #angles circle {
-    stroke: #666;
-}
-
-#angles text {
-    fill: #333;
-}
-
-#angles path.drag {
-    fill: #666;
-    cursor: move;
-}
-
-#angles {
-    text-align: center;
-    margin: 0 auto;
-    width: 350px;
-}
-
-#angles input, #max {
-    width: 42px;
+/*
+Graphs
+*/
+.graphContainer {
+    margin-top: 60px;
+    width: 95%;
+    border: solid 1px rgb(55, 76, 140);
+    border-radius: 5px;
+    margin-left: 25px;
+    margin-right: 25px;
+    overflow-x: scroll!important;
+    margin-bottom: 25px;
 }
 
 .bar {
@@ -612,4 +411,8 @@ a.active {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
+}
+
+.tip{
+    color:white;
 }

@@ -1,31 +1,28 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="/stylesheets/user.css">
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 
-    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" type="text/css" href="/stylesheets/user.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.3/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <!-- Compiled and minified JavaScript -->
+
     <title>FacebookInfo</title>
 </head>
 <body>
-
-<nav class="headerSettings">
-    <div class="backgroundOpacity"></div>
-    <img class="profilePic"
-         src="">
+<nav id="headerSettings">
+    <div id="backgroundOpacity"></div>
+    <img id="profilePic"
+         src="" alt="user profile picture">
     <div class="nav-wrapper">
-        <img class="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="logo">
+        <img id="logo" src="https://static.xx.fbcdn.net/rsrc.php/v2/yx/r/j8MLnS8LDzC.png" alt="facebook logo">
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a data-toggle="popover" data-html="true" title="User stats"
                    data-content="Nome: <%= user.facebook.name %><br>Email: <%= user.facebook.email %><br>Last Analysis: <%= lastAnalysis %><br>Total analysis count: <%= countAnalysis %>">
                     <i class="material-icons">settings</i></a></li>
             <li><a id="reload"> <i class="material-icons">replay</i></a></li>
-            <li><a href="/logout"><i class="material-icons inline rotate">open_in_browser</i><span
+            <li><a href="/logout"><i id="rotate" class="material-icons inline">open_in_browser</i><span
                             class="inline">Logout</span></a></li>
         </ul>
     </div>
@@ -39,13 +36,13 @@
     <li id="tagged"><a data-toggle="pill" href="#menu4">Tagged Photos </a></li>
 </ul>
 
-<div class="containerMain">
-    <div class="leftMain"></div>
-    <div class="centerMain">
+<div id="containerMain">
+    <div id="leftMain"></div>
+    <div id="centerMain">
         <div class="tab-content">
             <div id="home" class="tab-pane fade in active">
                 <h3 class="tabTitle">Total Analysis</h3>
-                <div id="totalBestElementContainer">
+                <div class="bestElementContainer" id="totalBestElementContainer">
                     <h5 class="likeCount">Best element overall </h5>
                 </div>
                 <div class="divider"></div>
@@ -55,7 +52,7 @@
                 <div class="graphContainer">
                     <svg class="totalMonthChart chart"></svg>
                 </div>
-                <div class="totalGroupedLikeTableContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -72,7 +69,7 @@
                 <div class="graphContainer">
                     <svg class="totalHoursChart chart"></svg>
                 </div>
-                <div class="totalHoursAnalysisContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -87,14 +84,14 @@
             </div>
             <div id="menu0" class="tab-pane fade">
                 <h3 class="tabTitle">Best Friends</h3>
-                <div class="podiumContainer">
+                <div id="podiumContainer">
                     <div id="secondPic" class="podiumPicContainers">
+                        <img class="podiumPic" src="" alt="second best friend profile picture">
+                    </div>
+                    <div id="firstPic" class="podiumPicContainers" alt="first best friend profile picture">
                         <img class="podiumPic" src="">
                     </div>
-                    <div id="firstPic" class="podiumPicContainers">
-                        <img class="podiumPic" src="">
-                    </div>
-                    <div id="thirdPic" class="podiumPicContainers">
+                    <div id="thirdPic" class="podiumPicContainers" alt="third best friend profile picture">
                         <img class="podiumPic" src="">
                     </div>
                     <div class="podium" id="second">2</div>
@@ -104,7 +101,7 @@
                     <div class="podiumLabel"><%= data.analysis.likesByPerson[0].name %></div>
                     <div class="podiumLabel"><%= data.analysis.likesByPerson[2].name %></div>
                 </div>
-                <div class="friendTable">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -119,9 +116,9 @@
             </div>
             <div id="menu1" class="tab-pane fade">
                 <h3 class="tabTitle">Words Analysis</h3>
-                <div class="wordCloudContainer">
+                <div id="wordCloudContainer">
                 </div>
-                <div class="wordsTable">
+                <div id="wordsTable">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -142,7 +139,7 @@
                 <div class="graphContainer">
                     <svg class="feedMonthChart chart"></svg>
                 </div>
-                <div class="feedGroupedLikeTableContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -159,7 +156,7 @@
                 <div class="graphContainer">
                     <svg class="feedHoursChart chart"></svg>
                 </div>
-                <div class="feedHoursAnalysisContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -174,7 +171,7 @@
             </div>
             <div id="menu3" class="tab-pane fade">
                 <h3 class="tabTitle">Loaded Photos Analysis</h3>
-                <div id="loadedBestElementContainer">
+                <div class="bestElementContainer" id="loadedBestElementContainer">
                     <h5 class="likeCount">Best photo loaded by the user </h5>
                 </div>
                 <div class="divider"></div>
@@ -184,7 +181,7 @@
                 <div class="graphContainer">
                     <svg class="loadedMonthChart chart"></svg>
                 </div>
-                <div class="loadedGroupedLikeTableContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -201,7 +198,7 @@
                 <div class="graphContainer">
                     <svg class="loadedHoursChart chart"></svg>
                 </div>
-                <div class="loadedHoursAnalysisContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -216,7 +213,7 @@
             </div>
             <div id="menu4" class="tab-pane fade">
                 <h3 class="tabTitle">Tagged Photos Analysis</h3>
-                <div id="taggedBestElementContainer">
+                <div class="bestElementContainer" id="taggedBestElementContainer">
                     <h5 class="likeCount">Best element with a user Tag </h5>
                 </div>
                 <div class="divider"></div>
@@ -226,7 +223,7 @@
                 <div class="graphContainer">
                     <svg class="taggedMonthChart chart"></svg>
                 </div>
-                <div class="taggedGroupedLikeTableContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -243,7 +240,7 @@
                 <div class="graphContainer">
                     <svg class="taggedHoursChart chart"></svg>
                 </div>
-                <div class="taggedHoursAnalysisContainer">
+                <div class="TableContainer">
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -258,13 +255,8 @@
             </div>
         </div>
     </div>
-    <div class="rightMain"></div>
+    <div id="rightMain"></div>
 </div>
-<!--
-<footer class="footer">
-    &copyitr0
-</footer>
--->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>

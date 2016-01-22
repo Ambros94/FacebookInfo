@@ -5,6 +5,7 @@ var collections = require('./MongoManager.js').collections;
 var monk = require('./MongoManager.js').monk;
 var query = require('./QueryManager.js');
 var moment = require('moment');
+var emptyResponses = require('../config/empty_response.js')
 
 
 module.exports = function (app, passport) {
@@ -37,56 +38,7 @@ module.exports = function (app, passport) {
                 })
                 .error(function () {
                     res.send({
-                        data: [{
-                            "_id": '',
-                            "email": "",
-                            "analysis": {
-                                "usedWords": [{"word": ""}],
-                                "likesByPerson": [{
-                                    "id": "",
-                                    "name": "",
-                                    "count": 0,
-                                    "profileLink": "",
-                                    "profilePhoto": ""
-                                }],
-                                "bestElement": {
-                                    "likesCount": 0,
-                                    "post": {
-                                        "id": "",
-                                        "created_time": "",
-                                        "from": {"name": "", "id": ""},
-                                        "height": 0,
-                                        "icon": "",
-                                        "images": [{"height": 0, "source": "", "whidth": 0}],
-                                        "link": "",
-                                        "name": "",
-                                        "picture": "",
-                                        "source": "",
-                                        "updated-time": "",
-                                        "width": 0,
-                                        "tags": {
-                                            data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
-                                            "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "comments": {
-                                            "data": [{
-                                                "created_time": "",
-                                                "from": {"name": "", "id": ""},
-                                                "message": "",
-                                                "can_remove": false,
-                                                "like_count": 0,
-                                                "user_like": false,
-                                                "id": ""
-                                            }], "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "likes": [{"id": "", "name": ""}]
-                                    }
-                                },
-                                "likesCount": 0,
-                                "periodGroupedLikes": {"2016-01": 0},
-                                "hourGroupedLikes": {"0": 0}
-                            }
-                        }]
+                        data: emptyResponses.total
                     });
                 })
                 .success(function () {
@@ -118,63 +70,13 @@ module.exports = function (app, passport) {
         var analysis = monk.get(collections.userCompleteAnalysis);
         analysis.find({}, {stream: true})
             .each(function (item) {
-                console.log(item.email, email, item.email == email);
                 if (typeof item !== 'undefined' && item.email == email) {
                     analysisResult = item;
                 }
             })
             .error(function () {
                 res.send({
-                    data: [{
-                        "_id": '',
-                        "email": "",
-                        "analysis": {
-                            "usedWords": [{"word": ""}],
-                            "likesByPerson": [{
-                                "id": "",
-                                "name": "",
-                                "count": 0,
-                                "profileLink": "",
-                                "profilePhoto": ""
-                            }],
-                            "bestElement": {
-                                "likesCount": 0,
-                                "post": {
-                                    "id": "",
-                                    "created_time": "",
-                                    "from": {"name": "", "id": ""},
-                                    "height": 0,
-                                    "icon": "",
-                                    "images": [{"height": 0, "source": "", "whidth": 0}],
-                                    "link": "",
-                                    "name": "",
-                                    "picture": "",
-                                    "source": "",
-                                    "updated-time": "",
-                                    "width": 0,
-                                    "tags": {
-                                        data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
-                                        "paging": {"cursor": {"before": "", "after": ""}}
-                                    },
-                                    "comments": {
-                                        "data": [{
-                                            "created_time": "",
-                                            "from": {"name": "", "id": ""},
-                                            "message": "",
-                                            "can_remove": false,
-                                            "like_count": 0,
-                                            "user_like": false,
-                                            "id": ""
-                                        }], "paging": {"cursor": {"before": "", "after": ""}}
-                                    },
-                                    "likes": [{"id": "", "name": ""}]
-                                }
-                            },
-                            "likesCount": 0,
-                            "periodGroupedLikes": {"2016-01": 0},
-                            "hourGroupedLikes": {"0": 0}
-                        }
-                    }]
+                    data: emptyResponses.total
                 });
             })
             .success(function () {
@@ -276,56 +178,7 @@ module.exports = function (app, passport) {
                 })
                 .error(function () {
                     res.send({
-                        data: [{
-                            "_id": '',
-                            "email": "",
-                            "analysis": {
-                                "usedWords": [{"word": ""}],
-                                "likesByPerson": [{
-                                    "id": "",
-                                    "name": "",
-                                    "count": 0,
-                                    "profileLink": "",
-                                    "profilePhoto": ""
-                                }],
-                                "bestElement": {
-                                    "likesCount": 0,
-                                    "post": {
-                                        "id": "",
-                                        "created_time": "",
-                                        "from": {"name": "", "id": ""},
-                                        "height": 0,
-                                        "icon": "",
-                                        "images": [{"height": 0, "source": "", "whidth": 0}],
-                                        "link": "",
-                                        "name": "",
-                                        "picture": "",
-                                        "source": "",
-                                        "updated-time": "",
-                                        "width": 0,
-                                        "tags": {
-                                            data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
-                                            "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "comments": {
-                                            "data": [{
-                                                "created_time": "",
-                                                "from": {"name": "", "id": ""},
-                                                "message": "",
-                                                "can_remove": false,
-                                                "like_count": 0,
-                                                "user_like": false,
-                                                "id": ""
-                                            }], "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "likes": [{"id": "", "name": ""}]
-                                    }
-                                },
-                                "likesCount": 0,
-                                "periodGroupedLikes": {"2016-01": 0},
-                                "hourGroupedLikes": {"0": 0}
-                            }
-                        }]
+                        data: emptyResponses.total
                     });
                 })
                 .success(function () {
@@ -371,13 +224,12 @@ module.exports = function (app, passport) {
             var analysis = monk.get(collections.userCompleteAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
-                    //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
                         analysisResult = item.analysis;
                     }
                 })
                 .error(function () {
-                    res.send({data: {'': 0}});
+                    res.send({data: emptyResponses.total});
                 })
                 .success(function () {
                     res.send({
@@ -397,13 +249,12 @@ module.exports = function (app, passport) {
             var analysis = monk.get(collections.userPostAnalysis);
             analysis.find({}, {stream: true})
                 .each(function (item) {
-                    //console.log(item.email + "  :  " + req.user.facebook.email)
                     if (typeof item.analysis !== 'undefined' && item.email == email) {
                         analysisResult = item.analysis;
                     }
                 })
                 .error(function () {
-                    res.send({data: {'': 0}});
+                    res.send({data: emptyResponses.feed});
                 })
                 .success(function () {
                     res.send({
@@ -429,7 +280,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: {'': 0}});
+                    res.send({data: emptyResponses.uploaded});
                 })
                 .success(function () {
                     res.send({
@@ -455,7 +306,7 @@ module.exports = function (app, passport) {
                     }
                 })
                 .error(function () {
-                    res.send({data: {'': 0}});
+                    res.send({data: emptyResponses.tagged});
                 })
                 .success(function () {
                     res.send({
@@ -512,7 +363,7 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBAMY8UDN1svlxccAI08UybepsCnuUoDSmUGrszaO4ZC19ZA4h8gGvCU4n5qq6ufq9bvxSVZC6ZBXqdbfjDRmGDizRH1ZC0AZBYm8cDRJAZCwCRZBC6pIW7kZCOXMOZCHNZBPbCl5tuZBhksexxMhCdAPxvpzuXcZA83g4z8h7qrULHtyxb2GmeI6IzMbFZAq9aClZADNQNVtHu11XPVZB";
+        var token = "CAACEdEose0cBAJH9na8Gid8ZCZBjRbBDLyukRcZAypuVKR9XqH3TO3gi4igHruzUWy142brwRRZBk6UZCd4oFLnls0J1LqDPEK6rlK1FmkWd0GSfnnm8LK79J4zMxCgcjPJ3LNrcnMXOZCykS1zIePBZBZCHGG7E4ZCVlodYdHydhynNiENfJj4dvxiYHUmqgZCWpNl7BYs5eHHQZDZD";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*
@@ -561,56 +412,7 @@ module.exports = function (app, passport) {
                 .error(function (err) {
                     console.log(err);
                     res.send({
-                        data: [{
-                            "_id": '',
-                            "email": "",
-                            "analysis": {
-                                "usedWords": [{"word": ""}],
-                                "likesByPerson": [{
-                                    "id": "",
-                                    "name": "",
-                                    "count": 0,
-                                    "profileLink": "",
-                                    "profilePhoto": ""
-                                }],
-                                "bestElement": {
-                                    "likesCount": 0,
-                                    "post": {
-                                        "id": "",
-                                        "created_time": "",
-                                        "from": {"name": "", "id": ""},
-                                        "height": 0,
-                                        "icon": "",
-                                        "images": [{"height": 0, "source": "", "whidth": 0}],
-                                        "link": "",
-                                        "name": "",
-                                        "picture": "",
-                                        "source": "",
-                                        "updated-time": "",
-                                        "width": 0,
-                                        "tags": {
-                                            data: [{"id": "", "name": "", "created_time": "", "x": 0, "y": 0}],
-                                            "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "comments": {
-                                            "data": [{
-                                                "created_time": "",
-                                                "from": {"name": "", "id": ""},
-                                                "message": "",
-                                                "can_remove": false,
-                                                "like_count": 0,
-                                                "user_like": false,
-                                                "id": ""
-                                            }], "paging": {"cursor": {"before": "", "after": ""}}
-                                        },
-                                        "likes": [{"id": "", "name": ""}]
-                                    }
-                                },
-                                "likesCount": 0,
-                                "periodGroupedLikes": {"2016-01": 0},
-                                "hourGroupedLikes": {"0": 0}
-                            }
-                        }]
+                        data: emptyResponses.total
                     });
                 })
                 .success(function () {

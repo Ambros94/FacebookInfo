@@ -4,14 +4,14 @@
     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <title>Node Authentication</title>
     <style>
-        .wait {
+        #wait {
             z-index: -1;
             position: absolute;
             left: 46%;
             top: 46%;
         }
 
-        .waitHidden {
+        #waitHidden {
             position: absolute;
             width: 128px;
             height: 34px;
@@ -45,19 +45,19 @@
             margin-top: -3em;
         }
 
-        #gif{
+        #gif {
             width: 100px;
             margin-top: -50px;
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <h1>Stalk.com</h1>
-    <br>
-    <h3>Move the mouse over the bubbles..</h3>
-    <div class="waitHidden"></div>
-    <div class="wait"></div>
+<div id="container">
+        <h1>Stalk.com</h1>
+        <br>
+        <h3>Move the mouse over the bubbles..</h3>
+        <div id="waitHidden"></div>
+        <div id="wait"></div>
 </div>
 <footer id="footer"></footer>
 <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
