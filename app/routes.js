@@ -363,7 +363,8 @@ module.exports = function (app, passport) {
          * Params mapping on local variables
          */
         var email = req.params.email;
-        var token = "CAACEdEose0cBAJH9na8Gid8ZCZBjRbBDLyukRcZAypuVKR9XqH3TO3gi4igHruzUWy142brwRRZBk6UZCd4oFLnls0J1LqDPEK6rlK1FmkWd0GSfnnm8LK79J4zMxCgcjPJ3LNrcnMXOZCykS1zIePBZBZCHGG7E4ZCVlodYdHydhynNiENfJj4dvxiYHUmqgZCWpNl7BYs5eHHQZDZD";
+        var token = req.user.facebook.token;
+       // var token = "";
         res.send({email});
         var lastAnalysis = Session.lastAnalysis(email);
         /*

@@ -1,0 +1,15 @@
+Purtroppo, nonostante i due tentativi fatti, facebook non ci ha ancora concesso i permessi necessari per scaricare la bacheca e le foto pubblicate da un utente {'user_feed','user_photos'}.
+All'autenticazione tramite facebook richiediamo solo i permessi che ci hanno concesso, che non permettono di testare le funzionalità dell'applicazione nel suo intero .
+
+Per poter testare l'applicazione nella sua totalità abbiamo quindi implementato due "scorciatoie" :
+
+Testare pannello admin :
+
+- Alla pagina /admin/signup è possibile creare un account amministratore, che avrà quindi l'accesso al pannello di controllo.
+
+Testare parte utente :
+
+- Recarsi sulla pagina : "https://developers.facebook.com/tools/explorer/"
+- Cliccare su "Get Token" e richiedere un token con almeno i permessi {'user_feed','user_photos'}
+- Inserire questo token alla riga 367 del file routes.js
+- Lanciare il server e autenticarsi con l'utente del quale è stato generato il token
